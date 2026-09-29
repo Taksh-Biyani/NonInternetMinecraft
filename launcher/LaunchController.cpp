@@ -62,6 +62,10 @@
 #include "tasks/Task.h"
 #include "ui/dialogs/ChooseOfflineNameDialog.h"
 
+#include <QTimer>
+
+#include "offline/OfflineMode.h"
+
 LaunchController::LaunchController() = default;
 
 void LaunchController::executeTask()
@@ -73,6 +77,21 @@ void LaunchController::executeTask()
 
     if (!JavaCommon::checkJVMArgs(m_instance->settings()->get("JvmArgs").toString(), m_parentWidget)) {
         emitFailed(tr("Invalid Java arguments specified. Please fix this first."));
+        return;
+    }
+
+    // Whether this launch may download depends on the startup network check, so wait for it
+    // (it takes a few seconds at most) instead of guessing.
+    auto* offlineMode = APPLICATION->offlineMode();
+    if (offlineMode->awaitingCheck()) {
+        setStatus(tr("Checking the internet connection..."));
+        connect(offlineMode, &OfflineMode::checkStateChanged, this, &LaunchController::login, Qt::SingleShotConnection);
+        QTimer::singleShot(std::chrono::seconds(15), this, [] {
+            if (auto* mode = APPLICATION->offlineMode(); mode->awaitingCheck()) {
+                qWarning() << "Network check did not finish in time; continuing offline";
+                mode->setCheckState(OfflineMode::CheckState::Unreachable);
+            }
+        });
         return;
     }
 

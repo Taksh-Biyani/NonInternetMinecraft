@@ -93,8 +93,12 @@ void OfflineMode::setSetting(Setting setting)
 
 void OfflineMode::setCheckState(CheckState check)
 {
+    if (check == m_check) {
+        return;
+    }
     m_check = check;
     recompute();
+    emit checkStateChanged(m_check);
 }
 
 void OfflineMode::recompute()

@@ -58,9 +58,13 @@ class OfflineMode : public QObject {
     CheckState checkState() const { return m_check; }
     void setCheckState(CheckState check);
     bool isOffline() const { return m_offline; }
+    /// True while "Auto" still waits for the startup network check. Code that is about to decide
+    /// whether to download (e.g. a launch) should wait for checkStateChanged() first.
+    bool awaitingCheck() const { return m_setting == Setting::Auto && m_check == CheckState::Pending; }
 
    signals:
     void offlineChanged(bool offline);
+    void checkStateChanged(OfflineMode::CheckState check);
 
    private:
     void recompute();

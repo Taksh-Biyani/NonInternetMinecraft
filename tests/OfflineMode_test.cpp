@@ -95,6 +95,27 @@ class OfflineModeTest : public QObject {
         QCOMPARE(spy.count(), 2);
     }
 
+    void test_awaitingCheck()
+    {
+        OfflineMode mode;
+        QVERIFY(mode.awaitingCheck());  // Auto + Pending: callers should wait for the check
+
+        QSignalSpy spy(&mode, &OfflineMode::checkStateChanged);
+        mode.setCheckState(OfflineMode::CheckState::Unreachable);  // offline before and after...
+        QCOMPARE(spy.count(), 1);                                  // ...but waiters still get told the check finished
+        QVERIFY(!mode.awaitingCheck());
+
+        mode.setCheckState(OfflineMode::CheckState::Unreachable);  // no change, no signal
+        QCOMPARE(spy.count(), 1);
+
+        OfflineMode::Setting settings[] = { OfflineMode::Setting::AlwaysOffline, OfflineMode::Setting::AlwaysOnline };
+        for (auto setting : settings) {
+            OfflineMode other;
+            other.setSetting(setting);
+            QVERIFY(!other.awaitingCheck());  // explicit settings never wait
+        }
+    }
+
     void test_instanceUnregistersOnDestruction()
     {
         {
