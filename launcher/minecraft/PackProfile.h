@@ -122,6 +122,8 @@ class PackProfile : public QAbstractListModel {
 
     /// get current running task...
     Task::Ptr getCurrentTask();
+    /// Error of the last resolve, or empty if it succeeded (or is still running).
+    QString lastUpdateError() const;
 
     std::shared_ptr<LaunchProfile> getProfile() const;
 

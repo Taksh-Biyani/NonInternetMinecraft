@@ -133,13 +133,9 @@ static LoadResult loadComponent(ComponentPtr component, Task::Ptr& loadTask, Net
             result = LoadResult::LoadedLocal;
         } else {
             loadTask = APPLICATION->metadataIndex()->loadVersion(component->m_uid, component->m_version, netmode);
-            loadTask->start();
-            if (netmode == Net::Mode::Online)
-                result = LoadResult::RequiresRemote;
-            else if (metaVersion->isLoaded())
-                result = LoadResult::LoadedLocal;
-            else
-                result = LoadResult::Failed;
+            // Started by the caller once its signal handlers are connected (a load from disk can finish synchronously).
+            // Offline loads are awaited exactly like remote ones.
+            result = LoadResult::RequiresRemote;
         }
     }
     return result;
@@ -229,12 +225,18 @@ void ComponentUpdateTask::loadComponents()
         componentIndex++;
     }
     d->remoteTasksInProgress = taskIndex;
+    for (auto& status : d->remoteLoadStatusList) {
+        if (!status.task->isRunning() && !status.task->isFinished()) {
+            status.task->start();
+        }
+    }
     m_progressTotal = static_cast<int>(taskIndex);
     switch (result) {
         case LoadResult::LoadedLocal: {
             // Everything got loaded. Advance to dependency resolution.
             performUpdateActions();
-            resolveDependencies(d->mode == Mode::Launch || d->netmode == Net::Mode::Offline);
+            // Offline may add missing dependencies too; their metadata then loads from disk (or fails clearly).
+            resolveDependencies(d->mode == Mode::Launch);
             return;
         }
         case LoadResult::RequiresRemote: {

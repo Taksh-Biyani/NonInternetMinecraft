@@ -355,8 +355,14 @@ Task::Ptr PackProfile::getCurrentTask()
     return d->m_updateTask;
 }
 
+QString PackProfile::lastUpdateError() const
+{
+    return d->m_lastUpdateError;
+}
+
 void PackProfile::resolve(Net::Mode netmode)
 {
+    d->m_lastUpdateError.clear();
     auto updateTask = new ComponentUpdateTask(ComponentUpdateTask::Mode::Resolution, netmode, this);
     d->m_updateTask.reset(updateTask);
     connect(updateTask, &ComponentUpdateTask::succeeded, this, &PackProfile::updateSucceeded);
@@ -375,6 +381,7 @@ void PackProfile::updateSucceeded()
 void PackProfile::updateFailed(const QString& error)
 {
     qCDebug(instanceProfileC) << d->m_instance->name() << "|" << "Component list update/resolve task failed. Reason:" << error;
+    d->m_lastUpdateError = error.isEmpty() ? tr("Unknown error") : error;
     d->m_updateTask.reset();
     invalidateLaunchProfile();
 }

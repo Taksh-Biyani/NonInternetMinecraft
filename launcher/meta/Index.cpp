@@ -138,7 +138,9 @@ void Index::connectVersionList(const int row, const VersionList::Ptr& list)
 Task::Ptr Index::loadVersion(const QString& uid, const QString& version, Net::Mode mode, bool force)
 {
     mode = OfflineMode::effective(mode);
-    if (mode == Net::Mode::Offline || !APPLICATION->settings()->get("MetaRefreshOnLaunch").toBool()) {
+    // Offline we still load the index and version list (from disk): a version only counts as loaded
+    // once its expected sha256 from the version list is known.
+    if (mode == Net::Mode::Online && !APPLICATION->settings()->get("MetaRefreshOnLaunch").toBool()) {
         return get(uid, version)->loadTask(mode);
     }
 

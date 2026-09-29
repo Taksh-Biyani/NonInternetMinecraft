@@ -23,6 +23,7 @@ struct PackProfileData {
     bool dirty = false;
     QTimer m_saveTimer;
     shared_qobject_ptr<ComponentUpdateTask> m_updateTask;
+    QString m_lastUpdateError;
     bool loaded = false;
     bool interactionDisabled = true;
 };

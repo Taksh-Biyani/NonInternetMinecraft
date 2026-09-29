@@ -15,6 +15,11 @@ void MinecraftLoadAndCheck::executeTask()
     m_task = components->getCurrentTask();
 
     if (!m_task) {
+        // The resolve can finish synchronously (e.g. offline); a failure then leaves no task behind.
+        if (const auto error = components->lastUpdateError(); !error.isEmpty()) {
+            emitFailed(error);
+            return;
+        }
         emitSucceeded();
         return;
     }
