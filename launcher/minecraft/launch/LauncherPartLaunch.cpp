@@ -43,6 +43,7 @@
 #include "FileSystem.h"
 #include "launch/LaunchTask.h"
 #include "minecraft/MinecraftInstance.h"
+#include "offline/LocalAuth.h"
 
 #ifdef Q_OS_LINUX
 #include "gamemode_client.h"
@@ -94,6 +95,35 @@ void LauncherPartLaunch::executeTask()
 
     m_launchScript = instance->createLaunchScript(m_session, m_targetToJoin);
     QStringList args = instance->javaArguments();
+
+    // PineconeMC Offline: offline accounts sign in through a local server inside the game, so LAN works without internet.
+    if (m_session && m_session->wantsLocalAuth) {
+        QString stubJar = APPLICATION->getJarPath(LocalAuth::StubJarName);
+        QString injectorJar = APPLICATION->getJarPath(LocalAuth::InjectorJarName);
+        if (stubJar.isEmpty() || injectorJar.isEmpty()) {
+            const char* reason = QT_TR_NOOP(
+                "The offline sign-in files (pinecone-offline-auth.jar and authlib-injector.jar) are missing from the launcher's "
+                "\"jars\" folder. Copy PineconeMC Offline again from the original download.");
+            emit logLine(tr(reason), MessageLevel::Fatal);
+            emitFailed(tr(reason));
+            return;
+        }
+        const quint16 authPort = LocalAuth::pickFreePort();
+        if (authPort == 0) {
+            const char* reason = QT_TR_NOOP("Couldn't find a free local network port for offline sign-in. Restart the computer and try again.");
+            emit logLine(tr(reason), MessageLevel::Fatal);
+            emitFailed(tr(reason));
+            return;
+        }
+#ifdef Q_OS_WIN
+        stubJar = FS::getPathNameInLocal8bit(stubJar);
+        injectorJar = FS::getPathNameInLocal8bit(injectorJar);
+#endif
+        args = LocalAuth::jvmArguments(stubJar, injectorJar, authPort) + args;
+        emit logLine(tr("Offline account: LAN sign-in runs locally on 127.0.0.1:%1, so no internet is needed.").arg(authPort) + "\n",
+                     MessageLevel::Launcher);
+    }
+
     QString allArgs = args.join(" ");
     emit logLine("Java arguments:\n  " + m_parent->censorPrivateInfo(allArgs) + "\n", MessageLevel::Launcher);
 
