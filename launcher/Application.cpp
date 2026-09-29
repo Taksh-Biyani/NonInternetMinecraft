@@ -125,6 +125,7 @@
 #include <FileSystem.h>
 #include <LocalPeer.h>
 #include <PineconeNetworkCheck.h>
+#include "offline/OfflineMode.h"
 
 #include <stdlib.h>
 #include "SysInfo.h"
@@ -578,7 +579,9 @@ Application::Application(int& argc, char** argv) : QApplication(argc, argv)
         qInfo() << "<> Log initialized.";
     }
 
-    {
+    // PineconeMC Offline: a portable copy (e.g. on a USB stick) must stay self-contained,
+    // so never offer to pull in data from launchers installed on this computer.
+    if (!m_portable) {
         auto migrated = handleDataMigration(
             dataPath, FS::PathCombine(QStandardPaths::writableLocation(QStandardPaths::AppDataLocation), "../../PolyMC"), "PolyMC",
             "polymc.cfg");
@@ -887,6 +890,12 @@ Application::Application(int& argc, char** argv) : QApplication(argc, argv)
         m_settings->registerSetting("PineconeAutoServers", true);
 
         m_settings->registerSetting("MetaRefreshOnLaunch", true);
+
+        // PineconeMC Offline: "Auto", "AlwaysOffline" or "AlwaysOnline"
+        m_settings->registerSetting("OfflineMode", "Auto");
+        m_offlineMode = std::make_unique<OfflineMode>();
+        m_offlineMode->setSetting(OfflineMode::settingFromString(m_settings->get("OfflineMode").toString()));
+        qInfo() << "Offline mode setting:" << OfflineMode::settingToString(m_offlineMode->setting());
         m_settings->registerSetting("CloseAfterLaunch", false);
         m_settings->registerSetting("QuitAfterGameStop", false);
 
@@ -1034,13 +1043,12 @@ Application::Application(int& argc, char** argv) : QApplication(argc, argv)
     // load translations
     {
         m_translations.reset(new TranslationsModel("translations"));
-        m_translations->downloadIndex();
+        // The translations index is downloaded by recheckNetwork() once the internet is known to be reachable.
         qInfo() << "Your language is" << m_translations->selectedLanguage();
         qInfo() << "<> Translations loaded.";
     }
 
-    m_pineconeNetworkCheck = std::make_unique<PineconeNetworkCheck>(m_network.get());
-    connect(m_pineconeNetworkCheck.get(), &PineconeNetworkCheck::shouldReloadNews, this, &Application::shouldReloadNews);
+    recheckNetwork();
 
     // FIXME: what to do with these?
     m_profilers.insert("jprofiler", std::shared_ptr<BaseProfilerFactory>(new JProfilerFactory()));
@@ -1661,6 +1669,23 @@ void Application::controllerFinished()
         m_status = wasSuccessful ? Succeeded : Failed;
         exit(wasSuccessful ? 0 : 1);
     }
+}
+
+void Application::recheckNetwork()
+{
+    if (m_offlineMode->setting() == OfflineMode::Setting::AlwaysOffline) {
+        qInfo() << "Offline mode is 'Always offline': skipping the network check";
+        return;
+    }
+    m_pineconeNetworkCheck = std::make_unique<PineconeNetworkCheck>(m_network.get());
+    connect(m_pineconeNetworkCheck.get(), &PineconeNetworkCheck::shouldReloadNews, this, &Application::shouldReloadNews);
+    connect(m_pineconeNetworkCheck.get(), &PineconeNetworkCheck::reachabilityDetermined, this, [this](bool reachable) {
+        m_offlineMode->setCheckState(reachable ? OfflineMode::CheckState::Reachable : OfflineMode::CheckState::Unreachable);
+        qInfo() << "Launcher is now" << (m_offlineMode->isOffline() ? "offline" : "online");
+        if (!m_offlineMode->isOffline()) {
+            m_translations->downloadIndex();
+        }
+    });
 }
 
 void Application::ShowGlobalSettings(class QWidget* parent, QString open_page)

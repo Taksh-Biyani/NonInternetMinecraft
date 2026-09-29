@@ -52,6 +52,7 @@
 #include "minecraft/auth/MinecraftAccount.h"
 
 class PineconeNetworkCheck;
+class OfflineMode;
 class LaunchController;
 class LocalPeer;
 class InstanceWindow;
@@ -181,6 +182,12 @@ class Application : public QApplication {
 
     bool isPortable() { return m_portable; }
 
+    /// Launcher-wide offline state (never null after construction).
+    OfflineMode* offlineMode() const { return m_offlineMode.get(); }
+
+    /// Runs the startup network check again (does nothing in "Always offline").
+    void recheckNetwork();
+
     const Capabilities capabilities() { return m_capabilities; }
 
     /*!
@@ -307,6 +314,7 @@ class Application : public QApplication {
     SetupWizard* m_setupWizard = nullptr;
 
     std::unique_ptr<PineconeNetworkCheck> m_pineconeNetworkCheck;
+    std::unique_ptr<OfflineMode> m_offlineMode;
 
    public:
     QString m_detectedGLFWPath;
