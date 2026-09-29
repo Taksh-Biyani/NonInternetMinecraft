@@ -37,6 +37,8 @@ class PineconeNetworkCheck : public QObject {
 
    signals:
     void shouldReloadNews(QString newUrl);
+    /// Emitted once, when the check is done: true if any probe (PineconeMC or Mojang) answered.
+    void reachabilityDetermined(bool reachable);
 
    private:
     void launchRequest(const QUrl& url, Result ifSuccess);
@@ -49,4 +51,5 @@ class PineconeNetworkCheck : public QObject {
     Result m_result = Result::Offline;
     int m_pendingRequests = 0;
     bool m_finished = false;
+    bool m_anyReachable = false;
 };

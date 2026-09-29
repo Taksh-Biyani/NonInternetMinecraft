@@ -34,6 +34,9 @@ PineconeNetworkCheck::PineconeNetworkCheck(QNetworkAccessManager* network)
     for (auto& [url, result] : s_urlToResult) {
         launchRequest(url, result);
     }
+    // Reachability-only probe: the internet may work even if PineconeMC's servers are down.
+    // Result::Offline never wins the `ifSuccess < m_result` comparison, so it can't change server selection.
+    launchRequest(QUrl("https://piston-meta.mojang.com/mc/game/version_manifest_v2.json"), Result::Offline);
 }
 
 QMap<PineconeNetworkCheck::Result, QString> PineconeNetworkCheck::metaUrls()
@@ -86,15 +89,20 @@ void PineconeNetworkCheck::launchRequest(const QUrl& url, Result ifSuccess)
 
         const int status = reply->attribute(QNetworkRequest::HttpStatusCodeAttribute).toInt();
         qInfo() << "[PineconeNetworkCheck]" << reply->url() << "result:" << reply->error() << status;
-        if (reply->error() == QNetworkReply::NoError && status < 400 && ifSuccess < m_result) {
+        const bool succeeded = reply->error() == QNetworkReply::NoError && status < 400;
+        if (succeeded) {
+            m_anyReachable = true;
+        }
+        if (succeeded && ifSuccess < m_result) {
             m_result = ifSuccess;
         }
         reply->deleteLater();
 
         if (!m_finished && (m_pendingRequests == 0 || m_result == Result::UsePrimary)) {
-            qInfo() << "[PineconeNetworkCheck] Final result:" << m_result;
-            finished();
+            qInfo() << "[PineconeNetworkCheck] Final result:" << m_result << "internet reachable:" << m_anyReachable;
             m_finished = true;
+            emit reachabilityDetermined(m_anyReachable);
+            finished();
         }
     });
 }
