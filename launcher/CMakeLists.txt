@@ -149,6 +149,8 @@ set(NET_SOURCES
 
     PineconeNetworkCheck.cpp
     PineconeNetworkCheck.h
+    offline/OfflineMode.cpp
+    offline/OfflineMode.h
     net/flame/FetchFlameAPIKey.cpp
     net/flame/FetchFlameAPIKey.h
 )
