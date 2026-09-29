@@ -21,6 +21,7 @@ Start-Sleep 2
 Set-Content -Encoding ascii "$serverDir\eula.txt" 'eula=true'
 Set-Content -Encoding ascii "$serverDir\server.properties" @(
     'online-mode=true', "server-port=$port", 'server-ip=127.0.0.1', 'enforce-secure-profile=false',
+    'white-list=false', 'enforce-whitelist=false',
     'level-name=lan-test-world', 'spawn-protection=0', 'max-players=4', 'motd=PineconeMC Offline LAN test')
 foreach ($f in "$serverDir\logs\latest.log", "$serverDir\logs\pinecone-offline-auth.log",
     "$Root\instances\$Instance\minecraft\logs\pinecone-offline-auth.log") { if (Test-Path $f) { Remove-Item $f } }
