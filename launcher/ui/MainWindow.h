@@ -65,6 +65,8 @@ class LabeledToolButton;
 namespace Ui {
 class MainWindow;
 }
+class QToolButton;
+
 class MainWindow : public QMainWindow {
     Q_OBJECT
 
@@ -240,6 +242,7 @@ class MainWindow : public QMainWindow {
     QToolButton* newsLabel = nullptr;
     QLabel* m_statusLeft = nullptr;
     QLabel* m_statusCenter = nullptr;
+    QToolButton* m_offlineBadge = nullptr;
     LabeledToolButton* changeIconButton = nullptr;
     LabeledToolButton* renameButton = nullptr;
     QToolButton* helpMenuButton = nullptr;

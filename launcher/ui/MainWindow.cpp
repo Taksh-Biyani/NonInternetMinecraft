@@ -88,6 +88,8 @@
 #include <net/ApiDownload.h>
 #include <net/NetJob.h>
 #include <news/NewsChecker.h>
+#include <QToolButton>
+#include "offline/OfflineMode.h"
 #include <tools/BaseProfiler.h>
 #include <updater/ExternalUpdater.h>
 #include "InstanceWindow.h"
@@ -383,6 +385,16 @@ MainWindow::MainWindow(QWidget* parent) : QMainWindow(parent), ui(new Ui::MainWi
     m_statusCenter = new QLabel(tr("Total playtime: 0s"), this);
     statusBar()->addPermanentWidget(m_statusLeft, 1);
     statusBar()->addPermanentWidget(m_statusCenter, 0);
+
+    m_offlineBadge = new QToolButton(this);
+    m_offlineBadge->setText(tr("Offline"));
+    m_offlineBadge->setAutoRaise(true);
+    m_offlineBadge->setToolTip(tr("The launcher is offline: it won't download anything and uses only files from imported offline bundles.\n"
+                                  "Playing on LAN or servers isn't affected. Click to change the offline mode setting."));
+    statusBar()->addPermanentWidget(m_offlineBadge, 0);
+    connect(m_offlineBadge, &QToolButton::clicked, this, [this] { APPLICATION->ShowGlobalSettings(this, "apis"); });
+    m_offlineBadge->setVisible(APPLICATION->offlineMode()->isOffline());
+    connect(APPLICATION->offlineMode(), &OfflineMode::offlineChanged, m_offlineBadge, &QToolButton::setVisible);
 
     // Add "manage accounts" button, right align
     QWidget* spacer = new QWidget();
