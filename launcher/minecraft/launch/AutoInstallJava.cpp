@@ -69,28 +69,8 @@ void AutoInstallJava::executeTask()
         return;
     }
     auto packProfile = m_instance->getPackProfile();
-    if (!APPLICATION->settings()->get("AutomaticJavaDownload").toBool() || OfflineMode::globallyOffline()) {
-        auto javas = APPLICATION->javalist();
-        m_current_task = javas->getLoadTask();
-        connect(m_current_task.get(), &Task::finished, this, [this, javas, packProfile] {
-            for (auto i = 0; i < javas->count(); i++) {
-                auto java = std::dynamic_pointer_cast<JavaInstall>(javas->at(i));
-                if (java && packProfile->getProfile()->getCompatibleJavaMajors().contains(java->id.major())) {
-                    if (!java->is_64bit) {
-                        emit logLine(tr("The automatic Java mechanism detected a 32-bit installation of Java."), MessageLevel::Launcher);
-                    }
-                    setJavaPath(java->path);
-                    return;
-                }
-            }
-            emit logLine(tr("No compatible Java version was found. Using the default one."), MessageLevel::Warning);
-            emitSucceeded();
-        });
-        connect(m_current_task.get(), &Task::progress, this, &AutoInstallJava::setProgress);
-        connect(m_current_task.get(), &Task::stepProgress, this, &AutoInstallJava::propagateStepProgress);
-        connect(m_current_task.get(), &Task::status, this, &AutoInstallJava::setStatus);
-        connect(m_current_task.get(), &Task::details, this, &AutoInstallJava::setDetails);
-        emit progressReportingRequest();
+    if (!APPLICATION->settings()->get("AutomaticJavaDownload").toBool()) {
+        useInstalledJava();
         return;
     }
     if (m_supported_arch.isEmpty()) {
@@ -116,6 +96,12 @@ void AutoInstallJava::executeTask()
         setJavaPathFromPartial();
         return;
     }
+    // Offline: the launcher's own java folder (checked above) had no match and nothing may be
+    // downloaded, so fall back to any compatible Java installed on this computer.
+    if (OfflineMode::globallyOffline()) {
+        useInstalledJava();
+        return;
+    }
     auto versionList = APPLICATION->metadataIndex()->get("net.minecraft.java");
     m_current_task = versionList->getLoadTask();
     connect(m_current_task.get(), &Task::succeeded, this, &AutoInstallJava::tryNextMajorJava);
@@ -127,6 +113,32 @@ void AutoInstallJava::executeTask()
     if (!m_current_task->isRunning()) {
         m_current_task->start();
     }
+    emit progressReportingRequest();
+}
+
+void AutoInstallJava::useInstalledJava()
+{
+    auto packProfile = m_instance->getPackProfile();
+    auto javas = APPLICATION->javalist();
+    m_current_task = javas->getLoadTask();
+    connect(m_current_task.get(), &Task::finished, this, [this, javas, packProfile] {
+        for (auto i = 0; i < javas->count(); i++) {
+            auto java = std::dynamic_pointer_cast<JavaInstall>(javas->at(i));
+            if (java && packProfile->getProfile()->getCompatibleJavaMajors().contains(java->id.major())) {
+                if (!java->is_64bit) {
+                    emit logLine(tr("The automatic Java mechanism detected a 32-bit installation of Java."), MessageLevel::Launcher);
+                }
+                setJavaPath(java->path);
+                return;
+            }
+        }
+        emit logLine(tr("No compatible Java version was found. Using the default one."), MessageLevel::Warning);
+        emitSucceeded();
+    });
+    connect(m_current_task.get(), &Task::progress, this, &AutoInstallJava::setProgress);
+    connect(m_current_task.get(), &Task::stepProgress, this, &AutoInstallJava::propagateStepProgress);
+    connect(m_current_task.get(), &Task::status, this, &AutoInstallJava::setStatus);
+    connect(m_current_task.get(), &Task::details, this, &AutoInstallJava::setDetails);
     emit progressReportingRequest();
 }
 
