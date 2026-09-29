@@ -62,3 +62,7 @@ flatbuild
 
 # Snap
 *.snap
+
+# PineconeMC Offline local toolchain / outputs
+/.deps/
+/dist/
