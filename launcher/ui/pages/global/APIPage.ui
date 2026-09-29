@@ -39,6 +39,63 @@
       </property>
       <layout class="QVBoxLayout" name="verticalLayout">
        <item>
+        <widget class="QGroupBox" name="groupBox_offline">
+         <property name="title">
+          <string>Offline mode</string>
+         </property>
+         <layout class="QVBoxLayout" name="verticalLayout_offline">
+          <item>
+           <widget class="QLabel" name="offlineModeDescription">
+            <property name="text">
+             <string>While offline, the launcher doesn't download anything. Minecraft versions, loaders and Java come only from imported offline bundles. Playing on LAN or servers isn't affected.</string>
+            </property>
+            <property name="wordWrap">
+             <bool>true</bool>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <layout class="QHBoxLayout" name="horizontalLayout_offlineMode">
+            <item>
+             <widget class="QLabel" name="offlineModeLabel">
+              <property name="text">
+               <string>Mode:</string>
+              </property>
+              <property name="buddy">
+               <cstring>offlineModeComboBox</cstring>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QComboBox" name="offlineModeComboBox"/>
+            </item>
+            <item>
+             <widget class="QPushButton" name="recheckNetworkButton">
+              <property name="text">
+               <string>Check connection now</string>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <spacer name="horizontalSpacer_offline">
+              <property name="orientation">
+               <enum>Qt::Horizontal</enum>
+              </property>
+             </spacer>
+            </item>
+           </layout>
+          </item>
+          <item>
+           <widget class="QLabel" name="offlineStatusLabel">
+            <property name="text">
+             <string/>
+            </property>
+           </widget>
+          </item>
+         </layout>
+        </widget>
+       </item>
+       <item>
         <widget class="QGroupBox" name="groupBox_pinecone">
          <property name="title">
           <string>PineconeMC</string>

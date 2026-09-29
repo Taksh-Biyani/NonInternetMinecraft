@@ -65,6 +65,7 @@ class APIPage : public QWidget, public BasePage {
     void updateBaseURLNote(int index);
     void updateBaseURLPlaceholder(int index);
     void onAutoServersChanged() const;
+    void updateOfflineStatus() const;
     void loadSettings();
     void applySettings();
 

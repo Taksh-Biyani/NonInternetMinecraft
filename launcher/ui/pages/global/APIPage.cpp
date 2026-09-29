@@ -39,6 +39,8 @@
 #include "APIPage.h"
 #include "ui_APIPage.h"
 
+#include <algorithm>
+
 #include <QFileDialog>
 #include <QMessageBox>
 #include <QRegularExpression>
@@ -50,6 +52,7 @@
 #include "Application.h"
 #include "BuildConfig.h"
 #include "PineconeNetworkCheck.h"
+#include "offline/OfflineMode.h"
 #include "net/PasteUpload.h"
 #include "net/flame/FetchFlameAPIKey.h"
 #include "settings/SettingsObject.h"
@@ -87,6 +90,19 @@ APIPage::APIPage(QWidget* parent) : QWidget(parent), ui(new Ui::APIPage)
     ui->resourceURL->setPlaceholderText(BuildConfig.DEFAULT_RESOURCE_BASE);
     ui->legacyFMLLibsURL->setPlaceholderText(BuildConfig.LEGACY_FMLLIBS_BASE_URL);
     ui->userAgentLineEdit->setPlaceholderText(BuildConfig.USER_AGENT);
+
+    ui->offlineModeComboBox->addItem(tr("Automatic (offline when there's no internet)"),
+                                     OfflineMode::settingToString(OfflineMode::Setting::Auto));
+    ui->offlineModeComboBox->addItem(tr("Always offline"), OfflineMode::settingToString(OfflineMode::Setting::AlwaysOffline));
+    ui->offlineModeComboBox->addItem(tr("Always online"), OfflineMode::settingToString(OfflineMode::Setting::AlwaysOnline));
+    ui->offlineModeComboBox->setToolTip(
+        tr("Automatic: the launcher checks for internet when it starts and goes offline if there is none.\n"
+           "Always offline: never uses the internet (for computers that are never connected).\n"
+           "Always online: always downloads when needed (for the computer you make bundles on)."));
+    ui->recheckNetworkButton->setToolTip(tr("Check again whether this computer can reach the internet."));
+    connect(ui->recheckNetworkButton, &QPushButton::clicked, this, [] { APPLICATION->recheckNetwork(); });
+    connect(APPLICATION->offlineMode(), &OfflineMode::offlineChanged, this, &APIPage::updateOfflineStatus);
+    updateOfflineStatus();
 
     loadSettings();
 
@@ -210,6 +226,7 @@ void APIPage::loadSettings()
     ui->technicClientID->setText(s->get("TechnicClientID").toString());
 
     ui->autoServersCheckBox->setChecked(s->get("PineconeAutoServers").toBool());
+    ui->offlineModeComboBox->setCurrentIndex(std::max(0, ui->offlineModeComboBox->findData(s->get("OfflineMode").toString())));
 }
 
 void APIPage::applySettings()
@@ -263,6 +280,22 @@ void APIPage::applySettings()
     s->set("TechnicClientID", ui->technicClientID->text());
 
     s->set("PineconeAutoServers", ui->autoServersCheckBox->isChecked());
+
+    const QString offlineModeSetting = ui->offlineModeComboBox->currentData().toString();
+    s->set("OfflineMode", offlineModeSetting);
+    auto* offlineMode = APPLICATION->offlineMode();
+    offlineMode->setSetting(OfflineMode::settingFromString(offlineModeSetting));
+    // Leaving "Always offline" for "Automatic": the startup check never ran, so run it now.
+    if (offlineMode->setting() == OfflineMode::Setting::Auto && offlineMode->checkState() == OfflineMode::CheckState::Pending) {
+        APPLICATION->recheckNetwork();
+    }
+}
+
+void APIPage::updateOfflineStatus() const
+{
+    ui->offlineStatusLabel->setText(APPLICATION->offlineMode()->isOffline()
+                                        ? tr("Current status: <b>Offline</b> (using only imported files)")
+                                        : tr("Current status: <b>Online</b>"));
 }
 
 bool APIPage::apply()
