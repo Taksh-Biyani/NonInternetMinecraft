@@ -1,7 +1,9 @@
-# Builds PineconeMC Offline. -Package also installs a portable copy into dist\PineconeMC-Offline.
+# Builds PineconeMC Offline. -Package installs a portable copy into dist\PineconeMC-Offline (keeping user data; -Clean wipes it first).
 param(
     [ValidateSet('Release', 'Debug')][string]$Config = 'Release',
-    [switch]$Package
+    [switch]$Package,
+    # Deletes dist\PineconeMC-Offline first, including instances, accounts and downloaded files.
+    [switch]$Clean
 )
 . (Join-Path $PSScriptRoot 'env.ps1')
 Push-Location $RepoRoot
@@ -14,7 +16,7 @@ try {
     if ($LASTEXITCODE) { throw 'Build failed' }
     if ($Package) {
         $dist = Join-Path $RepoRoot 'dist\PineconeMC-Offline'
-        if (Test-Path $dist) { Remove-Item -Recurse -Force $dist }
+        if ($Clean -and (Test-Path $dist)) { Remove-Item -Recurse -Force $dist }
         cmake --install build --config $Config --prefix $dist
         if ($LASTEXITCODE) { throw 'Install failed' }
         cmake --install build --config $Config --prefix $dist --component portable
