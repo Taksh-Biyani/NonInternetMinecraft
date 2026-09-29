@@ -283,6 +283,12 @@ void MinecraftAccount::fillSession(AuthSessionPtr session, int elyPatchPreferenc
             session->wantsElyPatch = false;
         }
     }
+    // PineconeMC Offline: offline accounts always sign in through the bundled local server instead of Ely.by,
+    // which can't work for them and needs internet.
+    session->wantsLocalAuth = data.type == AccountType::Offline;
+    if (session->wantsLocalAuth) {
+        session->wantsElyPatch = false;
+    }
 }
 
 void MinecraftAccount::decrementUses()

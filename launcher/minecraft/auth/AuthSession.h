@@ -27,6 +27,8 @@ struct AuthSession {
     LaunchMode launchMode;
     // settings & account type allow for Ely.by patch?
     bool wantsElyPatch = false;
+    // PineconeMC Offline: sign in through the bundled local server (offline accounts), so LAN works without internet
+    bool wantsLocalAuth = false;
 };
 
 using AuthSessionPtr = std::shared_ptr<AuthSession>;

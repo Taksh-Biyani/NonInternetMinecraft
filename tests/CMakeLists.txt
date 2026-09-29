@@ -69,3 +69,6 @@ ecm_add_test(OfflineMode_test.cpp LINK_LIBRARIES Launcher_logic Qt${QT_VERSION_M
 
 ecm_add_test(LocalAuth_test.cpp LINK_LIBRARIES Launcher_logic Qt${QT_VERSION_MAJOR}::Test
     TEST_NAME LocalAuth)
+
+ecm_add_test(AccountSession_test.cpp LINK_LIBRARIES Launcher_logic Qt${QT_VERSION_MAJOR}::Test
+    TEST_NAME AccountSession)
