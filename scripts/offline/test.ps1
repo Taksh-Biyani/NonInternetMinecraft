@@ -5,7 +5,9 @@ Push-Location $RepoRoot
 try {
     cmake --build --preset windows_msvc --config $Config
     if ($LASTEXITCODE) { throw 'Build failed' }
-    $regex = '^(' + ($Tests -join '|') + ')$'
+    # With -File, "A,B" arrives as one string, so split on commas as well.
+    $names = $Tests | ForEach-Object { $_ -split ',' } | Where-Object { $_ }
+    $regex = '^(' + ($names -join '|') + ')$'
     ctest --test-dir build -C $Config -R $regex --output-on-failure
     if ($LASTEXITCODE) { throw 'Tests failed' }
 } finally { Pop-Location }

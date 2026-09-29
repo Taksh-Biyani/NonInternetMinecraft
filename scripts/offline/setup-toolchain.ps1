@@ -15,6 +15,19 @@ if (-not (Test-Path (Join-Path $qtDir 'bin\qmake.exe'))) {
 }
 Write-Host "Qt: $qtDir"
 
+# JDK 17 builds the launcher's Java helpers (they target Java 7, which JDK 20+ can't compile).
+$jdk = Join-Path $deps 'jdk17'
+if (-not (Test-Path (Join-Path $jdk 'bin\javac.exe'))) {
+    $zip = Join-Path $deps 'jdk17.zip'
+    Invoke-WebRequest 'https://api.adoptium.net/v3/binary/latest/17/ga/windows/x64/jdk/hotspot/normal/eclipse' -OutFile $zip
+    $tmp = Join-Path $deps 'jdk17-extract'
+    if (Test-Path $tmp) { Remove-Item -Recurse -Force $tmp }
+    Expand-Archive $zip $tmp
+    Move-Item (Get-ChildItem $tmp -Directory | Select-Object -First 1).FullName $jdk
+    Remove-Item -Recurse -Force $tmp, $zip
+}
+Write-Host "JDK: $jdk"
+
 $vcpkg = Join-Path $deps 'vcpkg'
 if (-not (Test-Path (Join-Path $vcpkg 'vcpkg.exe'))) {
     if (-not (Test-Path $vcpkg)) { git clone https://github.com/microsoft/vcpkg.git $vcpkg }

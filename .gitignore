@@ -67,3 +67,4 @@ flatbuild
 /.deps/
 /dist/
 
+/aqtinstall.log
