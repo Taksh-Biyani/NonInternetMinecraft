@@ -25,6 +25,16 @@ Set-Content -Encoding ascii "$serverDir\server.properties" @(
 foreach ($f in "$serverDir\logs\latest.log", "$serverDir\logs\pinecone-offline-auth.log",
     "$Root\instances\$Instance\minecraft\logs\pinecone-offline-auth.log") { if (Test-Path $f) { Remove-Item $f } }
 
+# A fresh game folder shows the accessibility onboarding screen and a multiplayer warning first, which
+# stop the automatic join. Turn both off in the test instance's options.txt.
+$gameDir = "$Root\instances\$Instance\minecraft"
+New-Item -ItemType Directory -Force $gameDir | Out-Null
+$optionsFile = "$gameDir\options.txt"
+$wanted = [ordered]@{ onboardAccessibility = 'false'; skipMultiplayerWarning = 'true'; joinedFirstServer = 'true'; tutorialStep = 'none' }
+$options = @(if (Test-Path $optionsFile) { Get-Content $optionsFile } else { @() }) |
+    Where-Object { $wanted.Keys -notcontains ($_ -split ':', 2)[0] }
+Set-Content -Encoding ascii $optionsFile ($options + ($wanted.Keys | ForEach-Object { "${_}:$($wanted[$_])" }))
+
 $jvm = @('-Xmx2G')
 if ($ServerAgents) {
     $authPort = 25601
