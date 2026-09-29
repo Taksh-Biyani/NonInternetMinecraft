@@ -153,6 +153,8 @@ set(NET_SOURCES
     offline/OfflineMode.h
     offline/LocalAuth.cpp
     offline/LocalAuth.h
+    offline/BundleMessages.cpp
+    offline/BundleMessages.h
     net/flame/FetchFlameAPIKey.cpp
     net/flame/FetchFlameAPIKey.h
 )

@@ -72,3 +72,6 @@ ecm_add_test(LocalAuth_test.cpp LINK_LIBRARIES Launcher_logic Qt${QT_VERSION_MAJ
 
 ecm_add_test(AccountSession_test.cpp LINK_LIBRARIES Launcher_logic Qt${QT_VERSION_MAJOR}::Test
     TEST_NAME AccountSession)
+
+ecm_add_test(BundlePaths_test.cpp LINK_LIBRARIES Launcher_logic Qt${QT_VERSION_MAJOR}::Test
+    TEST_NAME BundlePaths)
