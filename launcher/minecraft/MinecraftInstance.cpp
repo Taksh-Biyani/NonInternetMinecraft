@@ -36,6 +36,7 @@
  */
 
 #include "MinecraftInstance.h"
+#include "offline/OfflineMode.h"
 #include "Application.h"
 #include "BuildConfig.h"
 #include "Json.h"
@@ -1175,7 +1176,7 @@ LaunchTask* MinecraftInstance::createLaunchTask(AuthSessionPtr session, Minecraf
     }
 
     // load meta
-    auto mode = session->launchMode != LaunchMode::Offline ? Net::Mode::Online : Net::Mode::Offline;
+    auto mode = OfflineMode::effective(session->launchMode != LaunchMode::Offline ? Net::Mode::Online : Net::Mode::Offline);
     {
         process->appendStep(makeShared<TaskStepWrapper>(pptr, makeShared<MinecraftLoadAndCheck>(this, mode)));
     }
@@ -1200,9 +1201,11 @@ LaunchTask* MinecraftInstance::createLaunchTask(AuthSessionPtr session, Minecraf
         process->appendStep(makeShared<TaskStepWrapper>(pptr, makeShared<ElyPatchTask>(this, runtimeContext(), mode)));
     }
 
-    // if we aren't in offline mode
     if (session->launchMode != LaunchMode::Offline) {
         process->appendStep(makeShared<ClaimAccount>(pptr, session));
+    }
+    // Download/update only when both the launch and the launcher are online.
+    if (mode == Net::Mode::Online) {
         for (auto t : createUpdateTask()) {
             process->appendStep(makeShared<TaskStepWrapper>(pptr, t));
         }

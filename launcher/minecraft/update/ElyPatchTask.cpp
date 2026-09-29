@@ -93,7 +93,7 @@ void ElyPatchTask::resolveAuthlibInjector()
         connect(m_currentTask.get(), &Task::succeeded, this, [this] {
             resolveAuthlibInjector();
         });
-        connect(m_currentTask.get(), &Task::failed, this, &ElyPatchTask::emitFailed);
+        connect(m_currentTask.get(), &Task::failed, this, &ElyPatchTask::failOrSkip);
         connect(m_currentTask.get(), &Task::progress, this, &ElyPatchTask::setProgress);
         connect(m_currentTask.get(), &Task::stepProgress, this, &ElyPatchTask::propagateStepProgress);
         m_currentTask->start();
@@ -109,7 +109,7 @@ void ElyPatchTask::resolveAuthlibInjector()
         }
     }
     if (!recommendedVersion) {
-        emitFailed(tr("Couldn't get recommended authlib-injector version"));
+        failOrSkip(tr("Couldn't get recommended authlib-injector version"));
         return;
     }
 
@@ -118,7 +118,7 @@ void ElyPatchTask::resolveAuthlibInjector()
         connect(m_currentTask.get(), &Task::succeeded, this, [this, recommendedVersion] {
             applyMetaVersion(recommendedVersion);
         });
-        connect(m_currentTask.get(), &Task::failed, this, &ElyPatchTask::emitFailed);
+        connect(m_currentTask.get(), &Task::failed, this, &ElyPatchTask::failOrSkip);
         connect(m_currentTask.get(), &Task::progress, this, &ElyPatchTask::setProgress);
         connect(m_currentTask.get(), &Task::stepProgress, this, &ElyPatchTask::propagateStepProgress);
         m_currentTask->start();
@@ -144,4 +144,14 @@ void ElyPatchTask::applyAuthlib(Meta::Version::Ptr metaVersion)
     }
 
     applyMetaVersion(metaVersion);
+}
+
+void ElyPatchTask::failOrSkip(const QString& reason)
+{
+    if (m_netMode == Net::Mode::Offline) {
+        qWarning() << "Skipping the Ely.by patch while offline:" << reason;
+        emitSucceeded();
+        return;
+    }
+    emitFailed(reason);
 }

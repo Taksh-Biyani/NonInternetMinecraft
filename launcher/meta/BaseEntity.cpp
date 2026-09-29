@@ -14,6 +14,7 @@
  */
 
 #include "BaseEntity.h"
+#include "offline/OfflineMode.h"
 
 #include "Exception.h"
 #include "FileSystem.h"
@@ -108,7 +109,7 @@ BaseEntity::LoadStatus BaseEntity::status() const
 }
 
 BaseEntityLoadTask::BaseEntityLoadTask(BaseEntity* parent, Net::Mode mode, bool forceReload)
-    : m_entity(parent), m_mode(mode), m_force_reload(forceReload)
+    : m_entity(parent), m_mode(OfflineMode::effective(mode)), m_force_reload(forceReload)
 {}
 
 void BaseEntityLoadTask::executeTask()
@@ -155,6 +156,10 @@ void BaseEntityLoadTask::executeTask()
     auto wasLoadedRemote = m_entity->m_sha256.isEmpty() ? m_entity->m_load_status == BaseEntity::LoadStatus::Remote : hashMatches;
     if (wasLoadedOffline || (wasLoadedRemote && !m_force_reload)) {
         emitSucceeded();
+        return;
+    }
+    if (m_mode == Net::Mode::Offline && OfflineMode::globallyOffline()) {
+        emitFailed(tr("%1 isn't available offline. Import an offline bundle that contains it.").arg(m_entity->localFilename()));
         return;
     }
     m_task.reset(new NetJob(QObject::tr("Download of meta file %1").arg(m_entity->localFilename()), APPLICATION->network()));

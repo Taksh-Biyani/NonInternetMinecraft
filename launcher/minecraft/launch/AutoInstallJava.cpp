@@ -34,6 +34,7 @@
  */
 
 #include "AutoInstallJava.h"
+#include "offline/OfflineMode.h"
 #include <QDir>
 #include <QFileInfo>
 #include <memory>
@@ -68,7 +69,7 @@ void AutoInstallJava::executeTask()
         return;
     }
     auto packProfile = m_instance->getPackProfile();
-    if (!APPLICATION->settings()->get("AutomaticJavaDownload").toBool()) {
+    if (!APPLICATION->settings()->get("AutomaticJavaDownload").toBool() || OfflineMode::globallyOffline()) {
         auto javas = APPLICATION->javalist();
         m_current_task = javas->getLoadTask();
         connect(m_current_task.get(), &Task::finished, this, [this, javas, packProfile] {

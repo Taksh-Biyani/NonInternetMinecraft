@@ -45,6 +45,8 @@ class ElyPatchTask : public Task {
 
     void applyMetaVersion(Meta::Version::Ptr metaVersion);
     void applyAuthlib(Meta::Version::Ptr metaVersion);
+    /// Fails the task, except while offline, where the launch continues without the Ely.by patch.
+    void failOrSkip(const QString& reason);
 
    private:
     MinecraftInstance* m_inst;

@@ -2,6 +2,7 @@
 #include <algorithm>
 
 #include "Component.h"
+#include "offline/OfflineMode.h"
 #include "ComponentUpdateTask_p.h"
 #include "PackProfile.h"
 #include "PackProfile_p.h"
@@ -46,7 +47,7 @@ ComponentUpdateTask::ComponentUpdateTask(Mode mode, Net::Mode netmode, PackProfi
     d.reset(new ComponentUpdateTaskData);
     d->m_profile = list;
     d->mode = mode;
-    d->netmode = netmode;
+    d->netmode = OfflineMode::effective(netmode);
 }
 
 ComponentUpdateTask::~ComponentUpdateTask() {}
