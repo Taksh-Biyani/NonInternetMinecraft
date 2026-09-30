@@ -157,6 +157,8 @@ set(NET_SOURCES
     offline/BundleMessages.h
     offline/BundlePaths.cpp
     offline/BundlePaths.h
+    offline/BundleManifest.cpp
+    offline/BundleManifest.h
     net/flame/FetchFlameAPIKey.cpp
     net/flame/FetchFlameAPIKey.h
 )
