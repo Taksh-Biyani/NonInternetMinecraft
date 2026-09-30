@@ -41,6 +41,8 @@ class BaseEntity {
 
     /* for parsers */
     void setSha256(QString sha256);
+    // PineconeMC Offline: forget the parsed local file so the next load re-reads it (after an offline bundle import).
+    void invalidateLocalCopy();
 
     virtual void parse(const QJsonObject& obj) = 0;
     [[nodiscard]] Task::Ptr loadTask(Net::Mode loadType = Net::Mode::Online, bool forceReload = false);

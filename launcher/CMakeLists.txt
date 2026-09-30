@@ -163,6 +163,8 @@ set(NET_SOURCES
     offline/MetaIndexMerger.h
     offline/BundleImportTask.cpp
     offline/BundleImportTask.h
+    offline/MetaReload.cpp
+    offline/MetaReload.h
     net/flame/FetchFlameAPIKey.cpp
     net/flame/FetchFlameAPIKey.h
 )

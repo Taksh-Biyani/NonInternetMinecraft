@@ -103,6 +103,12 @@ void BaseEntity::setSha256(QString sha256)
     m_sha256 = sha256;
 }
 
+void BaseEntity::invalidateLocalCopy()
+{
+    m_load_status = LoadStatus::NotLoaded;
+    m_file_sha256.clear();
+}
+
 BaseEntity::LoadStatus BaseEntity::status() const
 {
     return m_load_status;
