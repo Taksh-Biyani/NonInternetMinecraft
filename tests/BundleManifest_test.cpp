@@ -46,7 +46,8 @@ static QJsonObject versionsManifest()
                                                               QJsonObject{ { "uid", "net.fabricmc.fabric-loader" }, { "version", "0.19.5" } } } },
                                    { "java", QJsonArray{ QJsonObject{ { "name", "Java 25" }, { "major", 25 }, { "folder", "java-runtime-epsilon" } } } },
                                    { "instance", QJsonValue::Null } } },
-        { "files", QJsonArray{ fileEntry("meta/net.minecraft/26.3.json", 100), fileEntry("libraries/a/b.jar", 2000) } },
+        { "files", QJsonArray{ fileEntry("meta/net.minecraft/index.json", 0), fileEntry("meta/net.minecraft/26.3.json", 100),
+                               fileEntry("libraries/a/b.jar", 2000) } },
     };
 }
 
@@ -71,7 +72,7 @@ class BundleManifestTest : public QObject {
         QCOMPARE(m.java.at(0).major, 25);
         QCOMPARE(m.java.at(0).folder, QString("java-runtime-epsilon"));
         QVERIFY(!m.instance.has_value());
-        QCOMPARE(m.files.size(), 2);
+        QCOMPARE(m.files.size(), 3);
         QCOMPARE(m.totalSize(), qint64(2100));
     }
 
@@ -120,6 +121,8 @@ class BundleManifestTest : public QObject {
         versionsWithInstanceFiles["files"] = QJsonArray{ fileEntry("instance/instance.cfg") };
         QJsonObject noFiles = versionsManifest();
         noFiles.remove("files");
+        QJsonObject metaWithoutIndex = versionsManifest();
+        metaWithoutIndex["files"] = QJsonArray{ fileEntry("meta/net.minecraft/26.3.json"), fileEntry("meta/.junk/notes.json") };
 
         QTest::newRow("not json") << QByteArray("{ nope");
         QTest::newRow("no formatVersion") << toJson(noFormat);
@@ -129,6 +132,7 @@ class BundleManifestTest : public QObject {
         QTest::newRow("instance bundle without instance.cfg") << toJson(instanceWithoutCfg);
         QTest::newRow("versions bundle with instance files") << toJson(versionsWithInstanceFiles);
         QTest::newRow("no files list") << toJson(noFiles);
+        QTest::newRow("meta package without index.json") << toJson(metaWithoutIndex);
     }
 
     void test_parse_damaged()

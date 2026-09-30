@@ -25,6 +25,7 @@ namespace OfflineBundle {
 struct MetaMergeResult {
     bool ok = false;
     QString details;          // technical reason when !ok
+    bool badBundle = false;   // the bundle's own metadata is unusable (as opposed to a read/write problem on this PC)
     QStringList changedUids;  // packages whose index.json was written
 };
 

@@ -84,6 +84,7 @@ MetaMergeResult mergeMeta(const QString& stagedMeta, const QString& liveMeta)
         QJsonObject stagedIndex;
         if (!readObject(stagedDir.filePath("index.json"), stagedIndex, error)) {
             result.details = error;
+            result.badBundle = true;
             return result;
         }
 

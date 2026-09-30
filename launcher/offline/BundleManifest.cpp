@@ -116,6 +116,7 @@ ReadResult parseManifest(const QByteArray& json)
     if (!filesValue.isArray())
         return failure(Messages::damaged(), "the files list is missing");
     QSet<QString> seen;
+    QSet<QString> metaPackages;
     bool hasInstanceConfig = false;
     for (const QJsonValue& value : filesValue.toArray()) {
         const QJsonObject obj = value.toObject();
@@ -133,10 +134,17 @@ ReadResult parseManifest(const QByteArray& json)
             return failure(Messages::damaged(), QString("a versions bundle can't contain %1").arg(file.path));
         seen.insert(file.path.toLower());
         hasInstanceConfig = hasInstanceConfig || file.path == "instance/instance.cfg";
+        if (const QStringList segments = file.path.split('/'); segments.size() >= 3 && segments.first() == "meta")
+            metaPackages.insert(segments.at(1));
         m.files.append(file);
     }
     if (m.kind == Kind::Instance && !hasInstanceConfig)
         return failure(Messages::damaged(), "instance/instance.cfg is missing");
+    // Every metadata package folder needs its index.json, or its versions can't be installed (spec §3.2 step 5).
+    for (const QString& uid : metaPackages) {
+        if (!seen.contains(QString("meta/%1/index.json").arg(uid).toLower()))
+            return failure(Messages::damaged(), QString("meta/%1/ has no index.json").arg(uid));
+    }
     return ReadResult{ m, {}, {} };
 }
 

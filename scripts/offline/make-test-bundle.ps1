@@ -15,13 +15,14 @@ $items = New-Object System.Collections.Generic.List[object]
 foreach ($root in 'meta', 'libraries', 'assets', 'java') {
     $dir = Join-Path $Source $root
     if (-not (Test-Path $dir)) { continue }
-    Get-ChildItem $dir -Recurse -File | ForEach-Object {
+    # Hidden files and folders (e.g. editor or tool caches) never belong in a bundle.
+    Get-ChildItem $dir -Recurse -File | Where-Object { $_.FullName.Substring($dir.Length + 1) -notmatch '(^|\\)\.' } | ForEach-Object {
         $items.Add(@{ Full = $_.FullName; Rel = ($root + '/' + $_.FullName.Substring($dir.Length + 1).Replace('\', '/')) })
     }
 }
 if ($Kind -eq 'instance') {
     $instDir = Join-Path $Source "instances\$Instance"
-    Get-ChildItem $instDir -Recurse -File | Where-Object { $_.FullName -notmatch '\\minecraft\\logs\\' } | ForEach-Object {
+    Get-ChildItem $instDir -Recurse -File | Where-Object { $_.FullName -notmatch '\\minecraft\\logs\\|\\\.(?!minecraft\\)[^\\]+\\' } | ForEach-Object {
         $items.Add(@{ Full = $_.FullName; Rel = ('instance/' + $_.FullName.Substring($instDir.Length + 1).Replace('\', '/')) })
     }
 }

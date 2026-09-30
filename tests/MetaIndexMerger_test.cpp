@@ -157,6 +157,7 @@ class MetaIndexMergerTest : public QObject {
         QVERIFY(writeJson(staged + "/net.minecraft/26.3.json", { { "version", "26.3" } }));
         const auto result = OfflineBundle::mergeMeta(staged, live);
         QVERIFY(!result.ok);
+        QVERIFY(result.badBundle);
         QVERIFY(result.details.contains("index.json"));
     }
 };

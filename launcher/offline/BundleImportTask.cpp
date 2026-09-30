@@ -136,7 +136,7 @@ auto ImportTask::doImport() -> Outcome
         setStatus(tr("Installing version information..."));
         const MetaMergeResult merged = mergeMeta(QDir(staging).filePath("meta"), QDir(m_dataRoot).filePath("meta"));
         if (!merged.ok)
-            return Failure{ Messages::couldNotWrite(), merged.details };
+            return Failure{ merged.badBundle ? Messages::damaged() : Messages::couldNotWrite(), merged.details };
         m_changedMetaUids = merged.changedUids;
         return std::nullopt;
     }();
