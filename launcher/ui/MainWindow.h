@@ -83,6 +83,9 @@ class MainWindow : public QMainWindow {
     void updatesAllowedChanged(bool allowed);
 
     void processURLs(QList<QUrl> urls);
+
+    // PineconeMC Offline: preview, import and report one offline bundle (spec §3.2).
+    void importBundle(const QString& path);
    signals:
     void isClosing();
 
@@ -97,6 +100,8 @@ class MainWindow : public QMainWindow {
     void on_actionAbout_triggered();
 
     void on_actionAddInstance_triggered();
+
+    void on_actionImportBundle_triggered();
 
     void on_actionREDDIT_triggered();
 

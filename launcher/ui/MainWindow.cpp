@@ -67,6 +67,7 @@
 #include <QMessageBox>
 #include <QProgressDialog>
 #include <QShortcut>
+#include <QStandardPaths>
 #include <QStatusBar>
 #include <QToolBar>
 #include <QToolButton>
@@ -77,6 +78,7 @@
 #include <BaseInstance.h>
 #include <BuildConfig.h>
 #include <DesktopServices.h>
+#include <InstanceImportTask.h>
 #include <InstanceList.h>
 #include <MMCZip.h>
 #include <icons/IconList.h>
@@ -89,7 +91,13 @@
 #include <net/NetJob.h>
 #include <news/NewsChecker.h>
 #include <QToolButton>
+#include "offline/BundleImportTask.h"
+#include "offline/BundleManifest.h"
+#include "offline/BundleMessages.h"
+#include "offline/BundleSummary.h"
+#include "offline/MetaReload.h"
 #include "offline/OfflineMode.h"
+#include "offline/RemovableDrives.h"
 #include <tools/BaseProfiler.h>
 #include <updater/ExternalUpdater.h>
 #include "InstanceWindow.h"
@@ -102,6 +110,7 @@
 #include "ui/dialogs/CustomMessageBox.h"
 #include "ui/dialogs/ExportInstanceDialog.h"
 #include "ui/dialogs/ExportPackDialog.h"
+#include "ui/dialogs/FriendlyErrorDialog.h"
 #include "ui/dialogs/IconPickerDialog.h"
 #include "ui/dialogs/ImportResourceDialog.h"
 #include "ui/dialogs/NewInstanceDialog.h"
@@ -937,6 +946,14 @@ void MainWindow::addInstance(const QString& url, const QMap<QString, QString>& e
     APPLICATION->settings()->set("LastUsedGroupForNewInstance", newInstDlg.instGroup());
 
     InstanceTask* creationTask = newInstDlg.extractTask();
+    // PineconeMC Offline: an offline bundle chosen on the Import page goes through the bundle importer.
+    if (auto* importTask = dynamic_cast<InstanceImportTask*>(creationTask);
+        importTask && importTask->sourceUrl().isLocalFile() && OfflineBundle::isBundle(importTask->sourceUrl().toLocalFile())) {
+        const QString bundlePath = importTask->sourceUrl().toLocalFile();
+        delete creationTask;
+        importBundle(bundlePath);
+        return;
+    }
     if (creationTask) {
         instanceFromInstanceTask(creationTask);
     }
@@ -945,6 +962,102 @@ void MainWindow::addInstance(const QString& url, const QMap<QString, QString>& e
 void MainWindow::on_actionAddInstance_triggered()
 {
     addInstance();
+}
+
+void MainWindow::on_actionImportBundle_triggered()
+{
+    QString startFolder = OfflineBundle::firstRemovableDriveRoot();
+    if (startFolder.isEmpty())
+        startFolder = QStandardPaths::writableLocation(QStandardPaths::DownloadLocation);
+    const QString path = QFileDialog::getOpenFileName(this, tr("Import offline bundle"), startFolder, tr("Offline bundles (*.zip)"));
+    if (!path.isEmpty())
+        importBundle(path);
+}
+
+void MainWindow::importBundle(const QString& path)
+{
+    const QString errorTitle = tr("Couldn't import the bundle");
+    const auto read = OfflineBundle::readManifestFromZip(path);
+    if (!read.manifest) {
+        FriendlyErrorDialog::show(this, errorTitle, read.message, read.details);
+        return;
+    }
+    const OfflineBundle::Manifest& manifest = *read.manifest;
+    const QString dataRoot = QDir::currentPath();
+    const QString javaDir = QDir(dataRoot).absoluteFilePath(APPLICATION->javaPath());
+
+    // Preview (spec §3.2 step 2)
+    QString list;
+    for (const auto& line : OfflineBundle::summarize(manifest, dataRoot, javaDir)) {
+        list += "<li>" + line.text.toHtmlEscaped();
+        if (line.alreadyInstalled)
+            list += " <i>" + tr("(already installed)") + "</i>";
+        list += "</li>";
+    }
+    QMessageBox preview(QMessageBox::Question, tr("Import offline bundle"),
+                        tr("<b>%1</b><p>This bundle adds:</p><ul>%2</ul><p>Size: %3</p>")
+                            .arg(manifest.name.toHtmlEscaped(), list, OfflineBundle::Messages::formatSize(manifest.totalSize())),
+                        QMessageBox::NoButton, this);
+    auto* importButton = preview.addButton(tr("Import"), QMessageBox::AcceptRole);
+    preview.addButton(QMessageBox::Cancel);
+    preview.setDefaultButton(importButton);
+    preview.exec();
+    if (preview.clickedButton() != importButton)
+        return;
+
+    // Import (steps 3-5 and 8)
+    OfflineBundle::ImportTask task(path, manifest, dataRoot, javaDir);
+    {
+        ProgressDialog progress(this);
+        progress.setSkipButton(true, tr("Cancel"));
+        progress.execWithTask(&task);
+    }
+    if (!task.wasSuccessful()) {
+        if (!task.failReason().isEmpty())
+            FriendlyErrorDialog::show(this, errorTitle, task.failReason(), task.errorDetails());
+        return;
+    }
+
+    // Reload (step 6)
+    OfflineBundle::reloadMetadata(APPLICATION->metadataIndex(), task.changedMetaUids());
+    if (!task.installedJavaFolders().isEmpty())
+        APPLICATION->javalist()->getLoadTask();  // starts a rescan; load() itself is protected
+
+    // Instance bundles: create the instance from instance/ with the existing import path.
+    QString newInstanceId;
+    if (manifest.kind == OfflineBundle::Kind::Instance) {
+        auto* instanceTask = new InstanceImportTask(QUrl::fromLocalFile(path), this);
+        instanceTask->setName(manifest.instance->name);
+        instanceTask->setGroup(manifest.instance->group);
+        const auto connection = connect(APPLICATION->instances(), &InstanceList::instanceSelectRequest, this,
+                                        [&newInstanceId](QString id) { newInstanceId = id; });
+        instanceFromInstanceTask(instanceTask);
+        disconnect(connection);
+        if (newInstanceId.isEmpty())
+            return;  // the instance step reported its own error
+    }
+
+    // Result (step 7)
+    QStringList added;
+    for (const auto& component : manifest.components)
+        added << QString("%1 %2").arg(component.name, component.version).toHtmlEscaped();
+    for (const auto& java : manifest.java)
+        added << java.name.toHtmlEscaped();
+    QString text = tr("<p>Added:</p><ul><li>%1</li></ul>").arg(added.join("</li><li>"));
+    if (!newInstanceId.isEmpty())
+        text += tr("<p>The instance <b>%1</b> is ready to play.</p>").arg(manifest.instance->name.toHtmlEscaped());
+    QMessageBox result(QMessageBox::Information, tr("Bundle imported"), text, QMessageBox::NoButton, this);
+    QAbstractButton* actionButton = newInstanceId.isEmpty() ? result.addButton(tr("Create instance"), QMessageBox::AcceptRole)
+                                                            : result.addButton(tr("Play"), QMessageBox::AcceptRole);
+    result.addButton(QMessageBox::Close);
+    result.exec();
+    if (result.clickedButton() != actionButton)
+        return;
+    if (newInstanceId.isEmpty()) {
+        addInstance();
+    } else if (auto* instance = APPLICATION->instances()->getInstanceById(newInstanceId)) {
+        APPLICATION->launch(instance);
+    }
 }
 
 void MainWindow::processURLs(QList<QUrl> urls)
@@ -1138,6 +1251,10 @@ void MainWindow::processURLs(QList<QUrl> urls)
             continue;
         }
 
+        if (OfflineBundle::isBundle(localFileName)) {
+            importBundle(localFileName);
+            continue;
+        }
         auto type = ResourceUtils::identify(localFileInfo);
 
         if (ModPlatform::ResourceTypeUtils::VALID_RESOURCES.count(type) == 0) {  // probably instance/modpack
