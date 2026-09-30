@@ -167,6 +167,8 @@ set(NET_SOURCES
     offline/MetaReload.h
     offline/BundleSummary.cpp
     offline/BundleSummary.h
+    offline/RemovableDrives.cpp
+    offline/RemovableDrives.h
     net/flame/FetchFlameAPIKey.cpp
     net/flame/FetchFlameAPIKey.h
 )
@@ -1090,6 +1092,8 @@ SET(LAUNCHER_SOURCES
     ui/dialogs/CreateShortcutDialog.h
     ui/dialogs/CustomMessageBox.cpp
     ui/dialogs/CustomMessageBox.h
+    ui/dialogs/FriendlyErrorDialog.cpp
+    ui/dialogs/FriendlyErrorDialog.h
     ui/dialogs/ExportInstanceDialog.cpp
     ui/dialogs/ExportInstanceDialog.h
     ui/dialogs/ExportPackDialog.cpp
