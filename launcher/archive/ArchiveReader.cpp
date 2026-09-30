@@ -21,8 +21,10 @@
 #include "ArchiveReader.h"
 #include <archive.h>
 #include <archive_entry.h>
+#include <QCryptographicHash>
 #include <QDir>
 #include <QFileInfo>
+#include <QIODevice>
 #include <QUrl>
 #include <functional>
 #include <memory>
@@ -246,6 +248,32 @@ bool ArchiveReader::parse(const std::function<bool(File*)>& doStuff)
 bool ArchiveReader::File::isFile()
 {
     return (archive_entry_filetype(m_entry) & AE_IFMT) == AE_IFREG;
+}
+
+bool ArchiveReader::File::isDirectory()
+{
+    return (archive_entry_filetype(m_entry) & AE_IFMT) == AE_IFDIR;
+}
+
+bool ArchiveReader::File::writeTo(QIODevice& out, QCryptographicHash* hash)
+{
+    const void* buff = nullptr;
+    size_t size = 0;
+    la_int64_t offset = 0;
+    int status = 0;
+    while ((status = archive_read_data_block(m_archive.get(), &buff, &size, &offset)) == ARCHIVE_OK) {
+        const auto* data = static_cast<const char*>(buff);
+        const auto length = static_cast<qint64>(size);
+        if (hash)
+            hash->addData(QByteArrayView(data, length));
+        if (out.write(data, length) != length)
+            return false;
+    }
+    if (status != ARCHIVE_EOF) {
+        qWarning() << "libarchive read error:" << archive_error_string(m_archive.get());
+        return false;
+    }
+    return true;
 }
 bool ArchiveReader::File::skip()
 {

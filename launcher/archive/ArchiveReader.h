@@ -27,6 +27,8 @@
 
 struct archive;
 struct archive_entry;
+class QCryptographicHash;
+class QIODevice;
 namespace MMCZip {
 class ArchiveReader {
    public:
@@ -46,6 +48,9 @@ class ArchiveReader {
 
         QString filename();
         bool isFile();
+        bool isDirectory();
+        // Streams this entry's data into `out`, adding every block to `hash` if given. False on a read or write error.
+        bool writeTo(QIODevice& out, QCryptographicHash* hash = nullptr);
         QDateTime dateTime();
         const char* error();
 

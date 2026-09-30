@@ -81,3 +81,6 @@ ecm_add_test(BundleManifest_test.cpp LINK_LIBRARIES Launcher_logic Qt${QT_VERSIO
 
 ecm_add_test(MetaIndexMerger_test.cpp LINK_LIBRARIES Launcher_logic Qt${QT_VERSION_MAJOR}::Test
     TEST_NAME MetaIndexMerger)
+
+ecm_add_test(BundleImportTask_test.cpp LINK_LIBRARIES Launcher_logic Qt${QT_VERSION_MAJOR}::Test
+    TEST_NAME BundleImportTask)
