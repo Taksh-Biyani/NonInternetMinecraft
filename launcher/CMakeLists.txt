@@ -165,6 +165,8 @@ set(NET_SOURCES
     offline/BundleImportTask.h
     offline/MetaReload.cpp
     offline/MetaReload.h
+    offline/BundleSummary.cpp
+    offline/BundleSummary.h
     net/flame/FetchFlameAPIKey.cpp
     net/flame/FetchFlameAPIKey.h
 )
