@@ -19,6 +19,7 @@
 #include <QTest>
 
 #include <offline/BundleMessages.h>
+#include <offline/BundlePaths.h>
 
 class BundlePathsTest : public QObject {
     Q_OBJECT
@@ -46,6 +47,56 @@ class BundlePathsTest : public QObject {
         const QString text = OfflineBundle::Messages::notEnoughSpace(qint64(2) * 1024 * 1024 * 1024, qint64(512) * 1024 * 1024);
         QVERIFY(text.contains("2.0 GB"));
         QVERIFY(text.contains("512 MB"));
+    }
+
+    void test_safePaths_data()
+    {
+        QTest::addColumn<QString>("path");
+        QTest::newRow("manifest") << "pinecone-offline-bundle.json";
+        QTest::newRow("root folder") << "meta";
+        QTest::newRow("meta file") << "meta/net.minecraft/26.3.json";
+        QTest::newRow("library") << "libraries/org/lwjgl/lwjgl/3.4.3/lwjgl-3.4.3.jar";
+        QTest::newRow("asset object") << "assets/objects/ab/abcdef0123";
+        QTest::newRow("java") << "java/java-runtime-epsilon/bin/javaw.exe";
+        QTest::newRow("instance world with space") << "instance/minecraft/saves/My World/level.dat";
+    }
+
+    void test_safePaths()
+    {
+        QFETCH(QString, path);
+        QCOMPARE(OfflineBundle::checkEntryPath(path), QString());
+    }
+
+    void test_unsafePaths_data()
+    {
+        QTest::addColumn<QString>("path");
+        QTest::newRow("empty") << "";
+        QTest::newRow("absolute") << "/etc/passwd";
+        QTest::newRow("drive letter") << "C:/Windows/evil.dll";
+        QTest::newRow("parent segment") << "meta/../../evil.txt";
+        QTest::newRow("dot segment") << "./meta/x.json";
+        QTest::newRow("empty segment") << "meta//x.json";
+        QTest::newRow("top level not allowed") << "saves/world/level.dat";
+        QTest::newRow("loose top-level file") << "readme.txt";
+        QTest::newRow("alternate data stream") << "meta/a.json:hidden";
+        QTest::newRow("reserved name") << "meta/CON";
+        QTest::newRow("reserved name with extension") << "libraries/nul.txt";
+        QTest::newRow("trailing dot") << "meta/name.";
+        QTest::newRow("trailing space") << "meta/name ";
+        QTest::newRow("control character") << "meta/a\tb";
+    }
+
+    void test_unsafePaths()
+    {
+        QFETCH(QString, path);
+        QVERIFY(!OfflineBundle::checkEntryPath(path).isEmpty());
+    }
+
+    void test_normalizeEntryPath()
+    {
+        QCOMPARE(OfflineBundle::normalizeEntryPath("meta\\net.minecraft\\26.3.json"), QString("meta/net.minecraft/26.3.json"));
+        QCOMPARE(OfflineBundle::normalizeEntryPath("meta/"), QString("meta"));
+        QCOMPARE(OfflineBundle::normalizeEntryPath("assets/objects/ab/abc"), QString("assets/objects/ab/abc"));
     }
 };
 
