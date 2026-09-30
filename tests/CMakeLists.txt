@@ -90,3 +90,6 @@ ecm_add_test(MetaReload_test.cpp LINK_LIBRARIES Launcher_logic Qt${QT_VERSION_MA
 
 ecm_add_test(BundleSummary_test.cpp LINK_LIBRARIES Launcher_logic Qt${QT_VERSION_MAJOR}::Test
     TEST_NAME BundleSummary)
+
+ecm_add_test(BundleRealImport_test.cpp LINK_LIBRARIES Launcher_logic Qt${QT_VERSION_MAJOR}::Test
+    TEST_NAME BundleRealImport)
