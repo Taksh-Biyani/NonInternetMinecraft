@@ -159,6 +159,8 @@ set(NET_SOURCES
     offline/BundlePaths.h
     offline/BundleManifest.cpp
     offline/BundleManifest.h
+    offline/MetaIndexMerger.cpp
+    offline/MetaIndexMerger.h
     net/flame/FetchFlameAPIKey.cpp
     net/flame/FetchFlameAPIKey.h
 )
