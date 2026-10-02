@@ -148,6 +148,39 @@ ReadResult parseManifest(const QByteArray& json)
     return ReadResult{ m, {}, {} };
 }
 
+QByteArray serializeManifest(const Manifest& m)
+{
+    QJsonArray components;
+    for (const ComponentEntry& c : m.components)
+        components.append(QJsonObject{ { "uid", c.uid }, { "version", c.version }, { "name", c.name } });
+    QJsonArray java;
+    for (const JavaEntry& j : m.java) {
+        QJsonObject obj{ { "name", j.name }, { "major", j.major } };
+        if (!j.folder.isEmpty())
+            obj.insert("folder", j.folder);
+        java.append(obj);
+    }
+    QJsonValue instance = QJsonValue::Null;
+    if (m.instance) {
+        QJsonObject obj{ { "name", m.instance->name }, { "folder", m.instance->folder } };
+        if (!m.instance->group.isEmpty())
+            obj.insert("group", m.instance->group);
+        instance = obj;
+    }
+    QJsonArray files;
+    for (const FileEntry& f : m.files)
+        files.append(QJsonObject{ { "path", f.path }, { "sha1", f.sha1 }, { "size", f.size } });
+    const QJsonObject contents{ { "components", components }, { "java", java }, { "instance", instance } };
+    const QJsonObject root{ { "formatVersion", m.formatVersion },
+                            { "kind", m.kind == Kind::Instance ? "instance" : "versions" },
+                            { "name", m.name },
+                            { "createdAt", m.createdAt },
+                            { "createdBy", m.createdBy },
+                            { "contents", contents },
+                            { "files", files } };
+    return QJsonDocument(root).toJson(QJsonDocument::Compact);
+}
+
 ReadResult readManifestFromZip(const QString& zipPath)
 {
     MMCZip::ArchiveReader zip(zipPath);

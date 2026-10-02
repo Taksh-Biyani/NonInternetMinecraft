@@ -179,6 +179,54 @@ class BundleManifestTest : public QObject {
         QVERIFY(!OfflineBundle::isBundle(modpack));
         QVERIFY(!OfflineBundle::isBundle(dir.filePath("missing.zip")));
     }
+
+    void serializeRoundTrip()
+    {
+        OfflineBundle::Manifest m;
+        m.formatVersion = 1;
+        m.kind = OfflineBundle::Kind::Instance;
+        m.name = "Cobblemon Pack";
+        m.createdAt = "2026-09-29T12:00:00Z";
+        m.createdBy = "PineconeMC Offline 1.0.0";
+        m.components = { { "net.minecraft", "26.3", "Minecraft" }, { "net.neoforged", "26.3.0.33-beta", "NeoForge" } };
+        m.java = { { "Java 25", 25, "java-runtime-epsilon" } };
+        m.instance = OfflineBundle::InstanceEntry{ "Cobblemon Pack", "instance", "Modpacks" };
+        m.files = { { "instance/instance.cfg", QString(40, 'a'), 12 }, { "meta/net.minecraft/index.json", QString(40, 'b'), 3 } };
+
+        const auto read = OfflineBundle::parseManifest(OfflineBundle::serializeManifest(m));
+        QVERIFY2(read.manifest, qPrintable(read.details));
+        const auto& r = *read.manifest;
+        QCOMPARE(r.kind, OfflineBundle::Kind::Instance);
+        QCOMPARE(r.name, m.name);
+        QCOMPARE(r.createdAt, m.createdAt);
+        QCOMPARE(r.createdBy, m.createdBy);
+        QCOMPARE(r.components.size(), 2);
+        QCOMPARE(r.components.at(1).uid, QString("net.neoforged"));
+        QCOMPARE(r.components.at(1).version, QString("26.3.0.33-beta"));
+        QCOMPARE(r.components.at(1).name, QString("NeoForge"));
+        QCOMPARE(r.java.size(), 1);
+        QCOMPARE(r.java.at(0).major, 25);
+        QCOMPARE(r.java.at(0).folder, QString("java-runtime-epsilon"));
+        QVERIFY(r.instance);
+        QCOMPARE(r.instance->group, QString("Modpacks"));
+        QCOMPARE(r.files.size(), 2);
+        QCOMPARE(r.files.at(0).size, qint64(12));
+        QCOMPARE(r.totalSize(), qint64(15));
+    }
+
+    void serializeVersionsBundleHasNullInstance()
+    {
+        OfflineBundle::Manifest m;
+        m.formatVersion = 1;
+        m.kind = OfflineBundle::Kind::Versions;
+        m.name = "Minecraft 26.3";
+        m.components = { { "net.minecraft", "26.3", "Minecraft" } };
+        const QJsonObject root = QJsonDocument::fromJson(OfflineBundle::serializeManifest(m)).object();
+        QCOMPARE(root.value("kind").toString(), QString("versions"));
+        QVERIFY(root.value("contents").toObject().value("instance").isNull());
+        QVERIFY(root.value("files").isArray());
+        QVERIFY(OfflineBundle::parseManifest(OfflineBundle::serializeManifest(m)).manifest);
+    }
 };
 
 QTEST_GUILESS_MAIN(BundleManifestTest)

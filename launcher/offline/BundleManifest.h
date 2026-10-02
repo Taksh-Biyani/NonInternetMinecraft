@@ -76,6 +76,9 @@ struct ReadResult {
 
 ReadResult parseManifest(const QByteArray& json);
 
+// The manifest as compact JSON. parseManifest reads it back unchanged (spec §2.2).
+QByteArray serializeManifest(const Manifest& manifest);
+
 // Reads the manifest inside a zip. A zip without one gets the "isn't an offline bundle" message.
 ReadResult readManifestFromZip(const QString& zipPath);
 
