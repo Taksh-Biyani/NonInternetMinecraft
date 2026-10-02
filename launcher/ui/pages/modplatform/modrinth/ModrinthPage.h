@@ -89,9 +89,11 @@ class ModrinthPage : public QWidget, public ModpackProviderBasePage {
     void onVersionSelectionChanged(int index);
     void triggerSearch();
     void createFilterWidget();
+    void loadCategories();
 
    private:
     Ui::ModrinthPage* m_ui;
+    class OfflineRefreshButton* m_refreshButton = nullptr;
     NewInstanceDialog* m_dialog;
     Modrinth::ModpackListModel* m_model;
 

@@ -68,6 +68,7 @@ class ModPage : public ResourcePage {
    protected slots:
     virtual void filterMods();
     void triggerSearch() override;
+    void refreshFromNetwork() override;
 
    protected:
     std::unique_ptr<ModFilterWidget> m_filter_widget;

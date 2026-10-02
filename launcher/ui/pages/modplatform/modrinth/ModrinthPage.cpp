@@ -49,6 +49,7 @@
 #include "Markdown.h"
 #include "StringUtils.h"
 
+#include "ui/widgets/OfflineRefreshButton.h"
 #include "ui/widgets/ProjectItem.h"
 
 #include "net/ApiDownload.h"
@@ -61,6 +62,12 @@ ModrinthPage::ModrinthPage(NewInstanceDialog* dialog, QWidget* parent)
     : QWidget(parent), m_ui(new Ui::ModrinthPage), m_dialog(dialog), m_fetch_progress(this, false)
 {
     m_ui->setupUi(this);
+    m_refreshButton = new OfflineRefreshButton(this);
+    m_ui->horizontalLayout->addWidget(m_refreshButton);
+    connect(m_refreshButton, &QPushButton::clicked, this, [this] {
+        loadCategories();
+        triggerSearch();
+    });
     createFilterWidget();
 
     m_ui->searchEdit->installEventFilter(this);
@@ -110,7 +117,9 @@ void ModrinthPage::openedImpl()
 {
     BasePage::openedImpl();
     suggestCurrent();
-    triggerSearch();
+    // Offline: wait for the Refresh button instead of failing (and popping up an error) on every visit.
+    if (OfflineRefreshButton::autoLoadAllowed())
+        triggerSearch();
 }
 
 bool ModrinthPage::eventFilter(QObject* watched, QEvent* event)
@@ -372,6 +381,14 @@ void ModrinthPage::createFilterWidget()
     connect(m_ui->filterButton, &QPushButton::clicked, this, [this] { m_filterWidget->setHidden(!m_filterWidget->isHidden()); });
 
     connect(m_filterWidget.get(), &ModFilterWidget::filterChanged, this, &ModrinthPage::triggerSearch);
+    if (OfflineRefreshButton::autoLoadAllowed())
+        loadCategories();
+}
+
+void ModrinthPage::loadCategories()
+{
+    if (m_categoriesTask && (m_categoriesTask->isRunning() || m_categoriesTask->wasSuccessful()))
+        return;
     auto [categoriesTask, response] = ModrinthAPI::getModCategories();
     m_categoriesTask = categoriesTask;
     connect(m_categoriesTask.get(), &Task::succeeded, [this, response]() {

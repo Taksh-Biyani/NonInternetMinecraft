@@ -93,6 +93,8 @@ class ResourcePage : public QWidget, public BasePage {
 
    protected slots:
     virtual void triggerSearch() = 0;
+    // The offline Refresh button: load what the page would have loaded by itself if the launcher were online.
+    virtual void refreshFromNetwork() { triggerSearch(); }
 
     void onSelectionChanged(QModelIndex curr, QModelIndex prev);
     void onVersionSelectionChanged(int index);

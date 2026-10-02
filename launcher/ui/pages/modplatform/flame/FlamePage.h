@@ -85,9 +85,11 @@ class FlamePage : public QWidget, public ModpackProviderBasePage {
     void onSelectionChanged(QModelIndex first, QModelIndex second);
     void onVersionSelectionChanged(int index);
     void createFilterWidget();
+    void loadCategories();
 
    private:
     Ui::FlamePage* m_ui = nullptr;
+    class OfflineRefreshButton* m_refreshButton = nullptr;
     NewInstanceDialog* m_dialog = nullptr;
     Flame::ListModel* m_listModel = nullptr;
     ModPlatform::IndexedPack::Ptr m_current;

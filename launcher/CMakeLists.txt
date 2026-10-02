@@ -1191,6 +1191,8 @@ SET(LAUNCHER_SOURCES
     ui/widgets/VersionSelectWidget.h
     ui/widgets/ProgressWidget.h
     ui/widgets/ProgressWidget.cpp
+    ui/widgets/OfflineRefreshButton.h
+    ui/widgets/OfflineRefreshButton.cpp
     ui/widgets/WideBar.h
     ui/widgets/WideBar.cpp
     ui/widgets/AppearanceWidget.h

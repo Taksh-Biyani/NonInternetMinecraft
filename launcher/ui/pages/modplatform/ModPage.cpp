@@ -52,6 +52,7 @@
 #include "minecraft/MinecraftInstance.h"
 
 #include "ui/dialogs/ResourceDownloadDialog.h"
+#include "ui/widgets/OfflineRefreshButton.h"
 
 namespace ResourceDownload {
 
@@ -76,7 +77,15 @@ void ModPage::setFilterWidget(std::unique_ptr<ModFilterWidget>& widget)
     m_filter = m_filter_widget->getFilter();
 
     connect(m_filter_widget.get(), &ModFilterWidget::filterChanged, this, &ModPage::triggerSearch);
+    // Offline: the categories are loaded by the Refresh button instead (no error pop-up on every visit).
+    if (OfflineRefreshButton::autoLoadAllowed())
+        prepareProviderCategories();
+}
+
+void ModPage::refreshFromNetwork()
+{
     prepareProviderCategories();
+    triggerSearch();
 }
 
 /******** Callbacks to events in the UI (set up in the derived classes) ********/

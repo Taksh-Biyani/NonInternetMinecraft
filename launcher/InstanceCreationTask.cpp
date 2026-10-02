@@ -6,6 +6,7 @@
 #include "Application.h"
 #include "InstanceTask.h"
 #include "minecraft/MinecraftLoadAndCheck.h"
+#include "offline/OfflineMode.h"
 #include "tasks/SequentialTask.h"
 
 bool InstanceCreationTask::abort()
@@ -84,7 +85,8 @@ void InstanceCreationTask::executeTask()
     }
 
     if (!m_abort) {
-        if (!APPLICATION->settings()->get("DownloadGameFilesDuringInstanceCreation").toBool()) {
+        // Offline there's nothing to download from: the files come from bundles and are checked at launch.
+        if (!APPLICATION->settings()->get("DownloadGameFilesDuringInstanceCreation").toBool() || OfflineMode::globallyOffline()) {
             emitSucceeded();
             return;
         }

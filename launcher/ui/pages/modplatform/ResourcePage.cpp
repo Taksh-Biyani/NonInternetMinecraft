@@ -53,6 +53,7 @@
 #include "Application.h"
 #include "ui/dialogs/ResourceDownloadDialog.h"
 #include "ui/pages/modplatform/ResourceModel.h"
+#include "ui/widgets/OfflineRefreshButton.h"
 #include "ui/widgets/ProjectItem.h"
 
 namespace ResourceDownload {
@@ -61,6 +62,10 @@ ResourcePage::ResourcePage(ResourceDownloadDialog* parent, BaseInstance& baseIns
     : QWidget(parent), m_baseInstance(baseInstance), m_ui(new Ui::ResourcePage), m_parentDialog(parent), m_fetchProgress(this, false)
 {
     m_ui->setupUi(this);
+
+    auto* refreshButton = new OfflineRefreshButton(this);
+    m_ui->horizontalLayout->addWidget(refreshButton);
+    connect(refreshButton, &QPushButton::clicked, this, &ResourcePage::refreshFromNetwork);
 
     m_ui->searchEdit->installEventFilter(this);
 
@@ -115,7 +120,8 @@ void ResourcePage::openedImpl()
     m_ui->resourceSelectionButton->setText(tr("Select %1 for download").arg(resourceString()));
 
     updateSelectionButton();
-    if (!m_suppressInitialSearch) {
+    // Offline: wait for the Refresh button instead of failing (and popping up an error) on every visit.
+    if (!m_suppressInitialSearch && OfflineRefreshButton::autoLoadAllowed()) {
         triggerSearch();
     } else {
         m_suppressInitialSearch = false;
