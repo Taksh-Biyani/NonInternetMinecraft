@@ -28,6 +28,9 @@ QString newerFormat();
 QString unsafe();
 QString couldNotWrite();
 QString notEnoughSpace(qint64 neededBytes, qint64 availableBytes);
+QString downloadFailed(const QString& item);
+QString exportNeedsInternet();
+QString couldNotWriteBundle();
 
 // "1 KB", "612 MB", "1.5 GB" (binary units, as Windows Explorer shows them).
 QString formatSize(qint64 bytes);

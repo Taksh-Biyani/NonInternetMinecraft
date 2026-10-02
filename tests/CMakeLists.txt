@@ -93,3 +93,6 @@ ecm_add_test(BundleSummary_test.cpp LINK_LIBRARIES Launcher_logic Qt${QT_VERSION
 
 ecm_add_test(BundleRealImport_test.cpp LINK_LIBRARIES Launcher_logic Qt${QT_VERSION_MAJOR}::Test
     TEST_NAME BundleRealImport)
+
+ecm_add_test(ExportRules_test.cpp LINK_LIBRARIES Launcher_logic Qt${QT_VERSION_MAJOR}::Test
+    TEST_NAME ExportRules)

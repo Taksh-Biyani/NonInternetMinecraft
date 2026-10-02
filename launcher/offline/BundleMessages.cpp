@@ -61,6 +61,25 @@ QString notEnoughSpace(qint64 neededBytes, qint64 availableBytes)
         .arg(formatSize(neededBytes), formatSize(availableBytes));
 }
 
+QString downloadFailed(const QString& item)
+{
+    return tr("Couldn't download %1. Check the internet connection and try again.").arg(item);
+}
+
+QString exportNeedsInternet()
+{
+    return tr(
+        "Making an offline bundle downloads everything it needs, so this computer needs an internet "
+        "connection. Connect to the internet (or set Offline mode to Auto in Settings) and try again.");
+}
+
+QString couldNotWriteBundle()
+{
+    return tr(
+        "Couldn't write the bundle file. Check that the USB stick or folder has enough free space and "
+        "isn't write-protected, then try again.");
+}
+
 QString formatSize(qint64 bytes)
 {
     constexpr double KiB = 1024.0;

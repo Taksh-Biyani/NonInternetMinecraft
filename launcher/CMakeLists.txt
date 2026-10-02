@@ -169,6 +169,8 @@ set(NET_SOURCES
     offline/BundleSummary.h
     offline/RemovableDrives.cpp
     offline/RemovableDrives.h
+    offline/ExportRules.cpp
+    offline/ExportRules.h
     net/flame/FetchFlameAPIKey.cpp
     net/flame/FetchFlameAPIKey.h
 )
