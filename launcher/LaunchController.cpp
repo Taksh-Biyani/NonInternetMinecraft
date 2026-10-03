@@ -64,7 +64,10 @@
 
 #include <QTimer>
 
+#include "offline/LaunchCompleteness.h"
 #include "offline/OfflineMode.h"
+#include "ui/MainWindow.h"
+#include "ui/dialogs/FriendlyErrorDialog.h"
 
 LaunchController::LaunchController() = default;
 
@@ -501,6 +504,20 @@ void LaunchController::onSucceeded()
 
 void LaunchController::onFailed(QString reason)
 {
+    // An offline launch that's missing files: one plain-language dialog (spec §4.4) instead of the console.
+    if (auto missing = OfflineBundle::takeLaunchReport(m_instance->id())) {
+        FriendlyErrorDialog dialog(m_parentWidget, tr("Can't start %1").arg(m_instance->name()),
+                                   OfflineBundle::missingMessage(*missing, m_instance->name()), OfflineBundle::missingDetails(*missing),
+                                   OfflineGuide::Section::MissingFiles);
+        dialog.addActionButton(tr("Import Bundle..."));
+        const int result = dialog.exec();
+        if (result == FriendlyErrorDialog::ActionResult) {
+            if (auto* window = APPLICATION->showMainWindow(false))
+                QMetaObject::invokeMethod(window, [window] { window->promptImportBundle(); }, Qt::QueuedConnection);
+        }
+        emitFailed(std::move(reason));
+        return;
+    }
     if (m_instance->settings()->get("ShowConsoleOnError").toBool()) {
         APPLICATION->showInstanceWindow(m_instance, "console");
     }

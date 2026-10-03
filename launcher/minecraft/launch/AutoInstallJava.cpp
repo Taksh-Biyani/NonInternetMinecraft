@@ -55,6 +55,7 @@
 #include "minecraft/MinecraftInstance.h"
 #include "minecraft/PackProfile.h"
 #include "net/Mode.h"
+#include "offline/LaunchCompleteness.h"
 #include "tasks/SequentialTask.h"
 
 AutoInstallJava::AutoInstallJava(LaunchTask* parent)
@@ -131,6 +132,17 @@ void AutoInstallJava::useInstalledJava()
                 setJavaPath(java->path);
                 return;
             }
+        }
+        // Offline nothing can be downloaded: record the missing Java so OfflineLaunchCheck reports it together with any
+        // missing files, instead of starting the game with a Java that can't run it.
+        const auto majors = packProfile->getProfile()->getCompatibleJavaMajors();
+        if (OfflineMode::globallyOffline() && !majors.isEmpty() && !m_instance->settings()->get("IgnoreJavaCompatibility").toBool()) {
+            auto report = OfflineBundle::takeLaunchReport(m_instance->id()).value_or(OfflineBundle::MissingReport{});
+            report.javaMajors = majors;
+            OfflineBundle::storeLaunchReport(m_instance->id(), report);
+            emit logLine(tr("No installed Java can run this version, and Java can't be downloaded offline."), MessageLevel::Warning);
+            emitSucceeded();
+            return;
         }
         emit logLine(tr("No compatible Java version was found. Using the default one."), MessageLevel::Warning);
         emitSucceeded();

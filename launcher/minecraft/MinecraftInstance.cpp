@@ -61,7 +61,7 @@
 #include "minecraft/launch/ClaimAccount.h"
 #include "minecraft/launch/CreateGameFolders.h"
 #include "minecraft/launch/EnsureAvailableMemory.h"
-#include "minecraft/launch/EnsureOfflineLibraries.h"
+#include "minecraft/launch/OfflineLaunchCheck.h"
 #include "minecraft/launch/ExtractNatives.h"
 #include "minecraft/launch/LauncherPartLaunch.h"
 #include "minecraft/launch/ModMinecraftJar.h"
@@ -1177,6 +1177,9 @@ LaunchTask* MinecraftInstance::createLaunchTask(AuthSessionPtr session, Minecraf
 
     // load meta
     auto mode = OfflineMode::effective(session->launchMode != LaunchMode::Offline ? Net::Mode::Online : Net::Mode::Offline);
+    if (mode == Net::Mode::Offline) {
+        process->appendStep(makeShared<OfflineLaunchCheck>(pptr, this, OfflineLaunchCheck::Phase::Components));
+    }
     {
         process->appendStep(makeShared<TaskStepWrapper>(pptr, makeShared<MinecraftLoadAndCheck>(this, mode)));
     }
@@ -1184,6 +1187,10 @@ LaunchTask* MinecraftInstance::createLaunchTask(AuthSessionPtr session, Minecraf
     // check java
     {
         process->appendStep(makeShared<AutoInstallJava>(pptr));
+        // Offline: everything else the game needs, before CheckJava would fail on a missing Java with a technical error.
+        if (mode == Net::Mode::Offline) {
+            process->appendStep(makeShared<OfflineLaunchCheck>(pptr, this, OfflineLaunchCheck::Phase::Files));
+        }
         process->appendStep(makeShared<CheckJava>(pptr));
         // verify that minimum Java requirements are met
         process->appendStep(makeShared<VerifyJavaInstall>(pptr));
@@ -1209,8 +1216,6 @@ LaunchTask* MinecraftInstance::createLaunchTask(AuthSessionPtr session, Minecraf
         for (auto t : createUpdateTask()) {
             process->appendStep(makeShared<TaskStepWrapper>(pptr, t));
         }
-    } else {
-        process->appendStep(makeShared<EnsureOfflineLibraries>(pptr, this));
     }
 
     // if there are any jar mods

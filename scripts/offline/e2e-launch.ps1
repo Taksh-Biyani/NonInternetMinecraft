@@ -4,7 +4,7 @@
 param([string]$Root, [string]$Instance, [int]$Minutes = 10)
 $gl = "$Root\instances\$Instance\minecraft\logs\latest.log"
 if (Test-Path $gl) { Remove-Item $gl }
-Get-Process pineconemc-offline -ErrorAction SilentlyContinue | Stop-Process -Force
+Get-Process pineconemc-offline -ErrorAction SilentlyContinue | Where-Object { $_.Path -like "$Root*" } | Stop-Process -Force
 $p = Start-Process "$Root\pineconemc-offline.exe" -ArgumentList '--launch', $Instance -PassThru
 $deadline = (Get-Date).AddMinutes($Minutes); $ok = $false
 while ((Get-Date) -lt $deadline) {
