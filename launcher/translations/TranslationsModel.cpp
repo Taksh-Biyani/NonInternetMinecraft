@@ -102,7 +102,8 @@ struct Language {
 
     float percentTranslated() const
     {
-        if (total == 0) {
+        // The launcher is written in American English; its index entry only lists a few overrides (shown as ~1%).
+        if (total == 0 || key == g_defaultLangCode) {
             return 100.0F;
         }
         return 100.0F * static_cast<float>(translated) / static_cast<float>(total);
