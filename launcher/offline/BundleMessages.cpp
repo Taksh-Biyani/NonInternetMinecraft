@@ -80,6 +80,11 @@ QString couldNotWriteBundle()
         "isn't write-protected, then try again.");
 }
 
+QString instanceNotFound()
+{
+    return tr("That instance can't be found any more. It may have been deleted or renamed. Pick it again and retry.");
+}
+
 QString formatSize(qint64 bytes)
 {
     constexpr double KiB = 1024.0;

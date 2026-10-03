@@ -9,7 +9,7 @@ $ErrorActionPreference = 'Stop'
 if (Get-Process pineconemc-offline -ErrorAction SilentlyContinue) { throw 'Close the launcher first.' }
 $argList = @('--export-bundle', "`"$Out`"")
 foreach ($s in ($Sets -split ';' | Where-Object { $_.Trim() })) { $argList += @('--export-set', "`"$($s.Trim())`"") }
-if ($Instance) { $argList += @('--export-instance', $Instance) }
+if ($Instance) { $argList += @('--export-instance', "`"$Instance`"") }
 if ($Worlds) { $argList += '--export-worlds' }
 $p = Start-Process "$Root\pineconemc-offline.exe" -ArgumentList $argList -PassThru
 if (-not $p.WaitForExit($Minutes * 60 * 1000)) { $p.Kill(); throw "Export timed out after $Minutes minutes." }

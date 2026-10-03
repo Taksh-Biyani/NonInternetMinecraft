@@ -160,7 +160,7 @@ bool ExportTask::addInstanceJob()
     BaseInstance* source = APPLICATION->instances()->getInstanceById(m_request.instanceId);
     auto* mc = dynamic_cast<MinecraftInstance*>(source);
     if (!mc) {
-        fail(Messages::couldNotWriteBundle(), QString("instance %1 not found").arg(m_request.instanceId));
+        fail(Messages::instanceNotFound(), QString("instance %1 not found").arg(m_request.instanceId));
         return false;
     }
     // Copy only what resolution needs; the real instance folder is read later and never changed.

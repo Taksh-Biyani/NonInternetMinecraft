@@ -142,6 +142,7 @@ class ExportRulesTest : public QObject {
         QVERIFY(Messages::downloadFailed("x").contains("internet"));
         QVERIFY(Messages::exportNeedsInternet().contains("internet"));
         QVERIFY(!Messages::couldNotWriteBundle().isEmpty());
+        QVERIFY(Messages::instanceNotFound().contains("instance"));
     }
 };
 
