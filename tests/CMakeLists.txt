@@ -99,3 +99,6 @@ ecm_add_test(ExportRules_test.cpp LINK_LIBRARIES Launcher_logic Qt${QT_VERSION_M
 
 ecm_add_test(ExportCollector_test.cpp LINK_LIBRARIES Launcher_logic Qt${QT_VERSION_MAJOR}::Test
     TEST_NAME ExportCollector)
+
+ecm_add_test(BundleWriter_test.cpp LINK_LIBRARIES Launcher_logic Qt${QT_VERSION_MAJOR}::Test
+    TEST_NAME BundleWriter)

@@ -173,6 +173,8 @@ set(NET_SOURCES
     offline/ExportRules.h
     offline/ExportCollector.cpp
     offline/ExportCollector.h
+    offline/BundleWriter.cpp
+    offline/BundleWriter.h
     net/flame/FetchFlameAPIKey.cpp
     net/flame/FetchFlameAPIKey.h
 )

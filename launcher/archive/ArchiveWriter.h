@@ -32,6 +32,10 @@ class ArchiveWriter {
     bool open();
     bool close();
 
+    // Zip only: store every entry uncompressed (true) or deflate them (false, the default). libarchive accepts this
+    // option only before the first entry, so call it before open().
+    void setStoreOnly(bool store) { m_storeOnly = store; }
+
     bool addFile(const QString& fileName, const QString& fileDest);
     bool addFile(const QString& fileDest, const QByteArray& data);
     bool addFile(ArchiveReader::File* f);
@@ -42,5 +46,6 @@ class ArchiveWriter {
     struct archive* m_archive = nullptr;
     QString m_filename;
     QString m_format = "zip";
+    bool m_storeOnly = false;
 };
 }  // namespace MMCZip
