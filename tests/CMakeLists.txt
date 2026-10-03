@@ -104,5 +104,8 @@ ecm_add_test(GuideLinks_test.cpp LINK_LIBRARIES Launcher_logic Qt${QT_VERSION_MA
     TEST_NAME GuideLinks)
 target_compile_definitions(GuideLinks PRIVATE PINECONE_GUIDE_HTML="${CMAKE_SOURCE_DIR}/docs/guide/Guide.html")
 
+ecm_add_test(LaunchCompleteness_test.cpp LINK_LIBRARIES Launcher_logic Qt${QT_VERSION_MAJOR}::Test
+    TEST_NAME LaunchCompleteness)
+
 ecm_add_test(BundleWriter_test.cpp LINK_LIBRARIES Launcher_logic Qt${QT_VERSION_MAJOR}::Test
     TEST_NAME BundleWriter)

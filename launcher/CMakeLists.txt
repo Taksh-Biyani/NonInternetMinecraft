@@ -181,6 +181,8 @@ set(NET_SOURCES
     offline/ForgePrepTask.h
     offline/GuideLinks.cpp
     offline/GuideLinks.h
+    offline/LaunchCompleteness.cpp
+    offline/LaunchCompleteness.h
     offline/BundleExportTask.cpp
     offline/BundleExportTask.h
     net/flame/FetchFlameAPIKey.cpp
