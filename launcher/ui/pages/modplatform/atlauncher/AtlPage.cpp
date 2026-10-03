@@ -44,6 +44,7 @@
 #include "AtlUserInteractionSupportImpl.h"
 #include "modplatform/atlauncher/ATLPackInstallTask.h"
 #include "ui/dialogs/NewInstanceDialog.h"
+#include "ui/widgets/OfflineNotice.h"
 
 #include <QMessageBox>
 
@@ -75,6 +76,13 @@ AtlPage::AtlPage(NewInstanceDialog* dialog, QWidget* parent) : QWidget(parent), 
     connect(ui->versionSelectionBox, &QComboBox::currentTextChanged, this, &AtlPage::onVersionSelectionChanged);
 
     ui->packView->setItemDelegate(new ProjectItemDelegate(this));
+
+    auto* notice = new OfflineNotice(OfflineNotice::modpacksMessage(), this);
+    ui->verticalLayout->insertWidget(0, notice);
+    connect(notice, &OfflineNotice::refreshRequested, this, [this] {
+        listModel->request();
+        initialized = true;
+    });
 }
 
 AtlPage::~AtlPage()
@@ -94,7 +102,7 @@ void AtlPage::retranslate()
 
 void AtlPage::openedImpl()
 {
-    if (!initialized) {
+    if (!initialized && OfflineNotice::autoLoadAllowed()) {
         listModel->request();
         initialized = true;
     }

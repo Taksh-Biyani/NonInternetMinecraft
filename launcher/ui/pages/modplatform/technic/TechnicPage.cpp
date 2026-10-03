@@ -41,6 +41,7 @@
 #include <QKeyEvent>
 
 #include "ui/dialogs/NewInstanceDialog.h"
+#include "ui/widgets/OfflineNotice.h"
 
 #include "BuildConfig.h"
 #include "Json.h"
@@ -80,6 +81,10 @@ TechnicPage::TechnicPage(NewInstanceDialog* dialog, QWidget* parent)
     connect(ui->versionSelectionBox, &QComboBox::currentTextChanged, this, &TechnicPage::onVersionSelectionChanged);
 
     ui->packView->setItemDelegate(new ProjectItemDelegate(this));
+
+    auto* notice = new OfflineNotice(OfflineNotice::modpacksMessage(), this);
+    ui->verticalLayout->insertWidget(0, notice);
+    connect(notice, &OfflineNotice::refreshRequested, this, &TechnicPage::triggerSearch);
 }
 
 bool TechnicPage::eventFilter(QObject* watched, QEvent* event)
@@ -118,7 +123,8 @@ void TechnicPage::retranslate()
 void TechnicPage::openedImpl()
 {
     suggestCurrent();
-    triggerSearch();
+    if (OfflineNotice::autoLoadAllowed())
+        triggerSearch();
 }
 
 void TechnicPage::triggerSearch()

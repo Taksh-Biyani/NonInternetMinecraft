@@ -80,6 +80,8 @@ class Page : public QWidget, public ModpackProviderBasePage {
     void onPackSelectionChanged(Modpack* pack = nullptr);
 
    private slots:
+    void startLoading();
+
     void ftbPackDataDownloadSuccessfully(ModpackList publicPacks, ModpackList thirdPartyPacks);
     void ftbPackDataDownloadFailed(QString reason);
     void ftbPackDataDownloadAborted();

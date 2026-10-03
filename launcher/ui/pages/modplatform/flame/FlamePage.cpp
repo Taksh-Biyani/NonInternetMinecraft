@@ -49,7 +49,7 @@
 #include "StringUtils.h"
 #include "modplatform/flame/FlameAPI.h"
 #include "ui/dialogs/NewInstanceDialog.h"
-#include "ui/widgets/OfflineRefreshButton.h"
+#include "ui/widgets/OfflineNotice.h"
 #include "ui/widgets/ProjectItem.h"
 
 static FlameAPI api;
@@ -91,13 +91,14 @@ FlamePage::FlamePage(NewInstanceDialog* dialog, QWidget* parent)
 
     m_ui->packView->setItemDelegate(new ProjectItemDelegate(this));
     m_ui->packDescription->setMetaEntry("FlamePacks");
-    m_refreshButton = new OfflineRefreshButton(this);
-    m_ui->horizontalLayout->addWidget(m_refreshButton);
-    connect(m_refreshButton, &QPushButton::clicked, this, [this] {
+    createFilterWidget();
+
+    m_offlineNotice = new OfflineNotice(OfflineNotice::modpacksMessage(), this);
+    m_ui->verticalLayout->insertWidget(0, m_offlineNotice);
+    connect(m_offlineNotice, &OfflineNotice::refreshRequested, this, [this] {
         loadCategories();
         triggerSearch();
     });
-    createFilterWidget();
 }
 
 FlamePage::~FlamePage()
@@ -137,7 +138,7 @@ void FlamePage::openedImpl()
 {
     suggestCurrent();
     // Offline: wait for the Refresh button instead of failing (and popping up an error) on every visit.
-    if (OfflineRefreshButton::autoLoadAllowed())
+    if (OfflineNotice::autoLoadAllowed())
         triggerSearch();
 }
 
@@ -339,7 +340,7 @@ void FlamePage::createFilterWidget()
     connect(m_ui->filterButton, &QPushButton::clicked, this, [this] { m_filterWidget->setHidden(!m_filterWidget->isHidden()); });
 
     connect(m_filterWidget.get(), &ModFilterWidget::filterChanged, this, &FlamePage::triggerSearch);
-    if (OfflineRefreshButton::autoLoadAllowed())
+    if (OfflineNotice::autoLoadAllowed())
         loadCategories();
 }
 

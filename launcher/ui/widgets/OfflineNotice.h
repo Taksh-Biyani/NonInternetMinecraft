@@ -18,18 +18,23 @@
 
 #pragma once
 
-#include <QPushButton>
+#include <QFrame>
 
-// A "Refresh" button for pages that load from the internet (Modrinth, CurseForge). While the launcher is offline those
-// pages don't load anything by themselves, so the user gets no error pop-ups; this button is shown instead and loads
-// once when clicked. It hides itself while the launcher is online.
-class OfflineRefreshButton : public QPushButton {
+// Shown at the top of pages that need the internet (modpack and mod browsers) while the launcher is offline (spec
+// §4.3): why the list is empty, what to do instead, a Refresh button and a link into the guide.
+class OfflineNotice : public QFrame {
     Q_OBJECT
    public:
-    explicit OfflineRefreshButton(QWidget* parent);
+    OfflineNotice(const QString& message, QWidget* parent);
 
-    // False while the launcher is offline: pages must then wait for a click instead of loading on their own.
+    // False while offline: pages then wait for Refresh instead of loading (and failing) on their own.
     static bool autoLoadAllowed();
+
+    static QString modpacksMessage();
+    static QString resourcesMessage();
+
+   signals:
+    void refreshRequested();
 
    private:
     void updateVisibility();

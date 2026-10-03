@@ -93,7 +93,7 @@ class ModrinthPage : public QWidget, public ModpackProviderBasePage {
 
    private:
     Ui::ModrinthPage* m_ui;
-    class OfflineRefreshButton* m_refreshButton = nullptr;
+    class OfflineNotice* m_offlineNotice = nullptr;
     NewInstanceDialog* m_dialog;
     Modrinth::ModpackListModel* m_model;
 

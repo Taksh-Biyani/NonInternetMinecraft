@@ -53,7 +53,7 @@
 #include "Application.h"
 #include "ui/dialogs/ResourceDownloadDialog.h"
 #include "ui/pages/modplatform/ResourceModel.h"
-#include "ui/widgets/OfflineRefreshButton.h"
+#include "ui/widgets/OfflineNotice.h"
 #include "ui/widgets/ProjectItem.h"
 
 namespace ResourceDownload {
@@ -62,10 +62,6 @@ ResourcePage::ResourcePage(ResourceDownloadDialog* parent, BaseInstance& baseIns
     : QWidget(parent), m_baseInstance(baseInstance), m_ui(new Ui::ResourcePage), m_parentDialog(parent), m_fetchProgress(this, false)
 {
     m_ui->setupUi(this);
-
-    auto* refreshButton = new OfflineRefreshButton(this);
-    m_ui->horizontalLayout->addWidget(refreshButton);
-    connect(refreshButton, &QPushButton::clicked, this, &ResourcePage::refreshFromNetwork);
 
     m_ui->searchEdit->installEventFilter(this);
 
@@ -95,6 +91,10 @@ ResourcePage::ResourcePage(ResourceDownloadDialog* parent, BaseInstance& baseIns
 
     connect(m_ui->packView, &QAbstractItemView::doubleClicked, this, &ResourcePage::onResourceToggle);
     connect(delegate, &ProjectItemDelegate::checkboxClicked, this, &ResourcePage::onResourceToggle);
+
+    auto* notice = new OfflineNotice(OfflineNotice::resourcesMessage(), this);
+    m_ui->verticalLayout->insertWidget(0, notice);
+    connect(notice, &OfflineNotice::refreshRequested, this, &ResourcePage::refreshFromNetwork);
 }
 
 ResourcePage::~ResourcePage()
@@ -121,7 +121,7 @@ void ResourcePage::openedImpl()
 
     updateSelectionButton();
     // Offline: wait for the Refresh button instead of failing (and popping up an error) on every visit.
-    if (!m_suppressInitialSearch && OfflineRefreshButton::autoLoadAllowed()) {
+    if (!m_suppressInitialSearch && OfflineNotice::autoLoadAllowed()) {
         triggerSearch();
     } else {
         m_suppressInitialSearch = false;

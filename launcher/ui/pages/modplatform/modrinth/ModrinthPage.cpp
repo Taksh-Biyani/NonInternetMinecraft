@@ -49,7 +49,7 @@
 #include "Markdown.h"
 #include "StringUtils.h"
 
-#include "ui/widgets/OfflineRefreshButton.h"
+#include "ui/widgets/OfflineNotice.h"
 #include "ui/widgets/ProjectItem.h"
 
 #include "net/ApiDownload.h"
@@ -62,12 +62,6 @@ ModrinthPage::ModrinthPage(NewInstanceDialog* dialog, QWidget* parent)
     : QWidget(parent), m_ui(new Ui::ModrinthPage), m_dialog(dialog), m_fetch_progress(this, false)
 {
     m_ui->setupUi(this);
-    m_refreshButton = new OfflineRefreshButton(this);
-    m_ui->horizontalLayout->addWidget(m_refreshButton);
-    connect(m_refreshButton, &QPushButton::clicked, this, [this] {
-        loadCategories();
-        triggerSearch();
-    });
     createFilterWidget();
 
     m_ui->searchEdit->installEventFilter(this);
@@ -101,6 +95,13 @@ ModrinthPage::ModrinthPage(NewInstanceDialog* dialog, QWidget* parent)
 
     m_ui->packView->setItemDelegate(new ProjectItemDelegate(this));
     m_ui->packDescription->setMetaEntry(metaEntryBase());
+
+    m_offlineNotice = new OfflineNotice(OfflineNotice::modpacksMessage(), this);
+    m_ui->verticalLayout->insertWidget(0, m_offlineNotice);
+    connect(m_offlineNotice, &OfflineNotice::refreshRequested, this, [this] {
+        loadCategories();
+        triggerSearch();
+    });
 }
 
 ModrinthPage::~ModrinthPage()
@@ -118,7 +119,7 @@ void ModrinthPage::openedImpl()
     BasePage::openedImpl();
     suggestCurrent();
     // Offline: wait for the Refresh button instead of failing (and popping up an error) on every visit.
-    if (OfflineRefreshButton::autoLoadAllowed())
+    if (OfflineNotice::autoLoadAllowed())
         triggerSearch();
 }
 
@@ -381,7 +382,7 @@ void ModrinthPage::createFilterWidget()
     connect(m_ui->filterButton, &QPushButton::clicked, this, [this] { m_filterWidget->setHidden(!m_filterWidget->isHidden()); });
 
     connect(m_filterWidget.get(), &ModFilterWidget::filterChanged, this, &ModrinthPage::triggerSearch);
-    if (OfflineRefreshButton::autoLoadAllowed())
+    if (OfflineNotice::autoLoadAllowed())
         loadCategories();
 }
 

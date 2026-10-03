@@ -45,6 +45,7 @@
 
 #include "ui/dialogs/CustomMessageBox.h"
 #include "ui/dialogs/NewInstanceDialog.h"
+#include "ui/widgets/OfflineNotice.h"
 
 #include "ListModel.h"
 #include "modplatform/legacy_ftb/PackFetchTask.h"
@@ -134,6 +135,10 @@ Page::Page(NewInstanceDialog* dialog, QWidget* parent) : QWidget(parent), dialog
     ui->thirdPartyPackList->setItemDelegate(new ProjectItemDelegate(this));
     ui->privatePackList->setItemDelegate(new ProjectItemDelegate(this));
     onTabChanged(ui->tabWidget->currentIndex());
+
+    auto* notice = new OfflineNotice(OfflineNotice::modpacksMessage(), this);
+    ui->verticalLayout->insertWidget(0, notice);
+    connect(notice, &OfflineNotice::refreshRequested, this, &Page::startLoading);
 }
 
 Page::~Page()
@@ -148,20 +153,27 @@ bool Page::shouldDisplay() const
 
 void Page::openedImpl()
 {
-    if (!initialized) {
-        connect(ftbFetchTask.get(), &PackFetchTask::finished, this, &Page::ftbPackDataDownloadSuccessfully);
-        connect(ftbFetchTask.get(), &PackFetchTask::failed, this, &Page::ftbPackDataDownloadFailed);
-        connect(ftbFetchTask.get(), &PackFetchTask::aborted, this, &Page::ftbPackDataDownloadAborted);
-
-        connect(ftbFetchTask.get(), &PackFetchTask::privateFileDownloadFinished, this, &Page::ftbPrivatePackDataDownloadSuccessfully);
-        connect(ftbFetchTask.get(), &PackFetchTask::privateFileDownloadFailed, this, &Page::ftbPrivatePackDataDownloadFailed);
-
-        ftbFetchTask->fetch();
-        ftbPrivatePacks->load();
-        ftbFetchTask->fetchPrivate(ftbPrivatePacks->getCurrentPackCodes().values());
-        initialized = true;
-    }
+    // Offline: wait for the Refresh button in the notice instead of failing on every visit.
+    if (OfflineNotice::autoLoadAllowed())
+        startLoading();
     suggestCurrent();
+}
+
+void Page::startLoading()
+{
+    if (initialized)
+        return;
+    connect(ftbFetchTask.get(), &PackFetchTask::finished, this, &Page::ftbPackDataDownloadSuccessfully);
+    connect(ftbFetchTask.get(), &PackFetchTask::failed, this, &Page::ftbPackDataDownloadFailed);
+    connect(ftbFetchTask.get(), &PackFetchTask::aborted, this, &Page::ftbPackDataDownloadAborted);
+
+    connect(ftbFetchTask.get(), &PackFetchTask::privateFileDownloadFinished, this, &Page::ftbPrivatePackDataDownloadSuccessfully);
+    connect(ftbFetchTask.get(), &PackFetchTask::privateFileDownloadFailed, this, &Page::ftbPrivatePackDataDownloadFailed);
+
+    ftbFetchTask->fetch();
+    ftbPrivatePacks->load();
+    ftbFetchTask->fetchPrivate(ftbPrivatePacks->getCurrentPackCodes().values());
+    initialized = true;
 }
 
 void Page::retranslate()

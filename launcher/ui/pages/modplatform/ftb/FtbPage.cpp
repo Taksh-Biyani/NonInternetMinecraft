@@ -42,6 +42,7 @@
 
 #include "modplatform/ftb/FTBPackInstallTask.h"
 #include "ui/dialogs/NewInstanceDialog.h"
+#include "ui/widgets/OfflineNotice.h"
 
 #include "Markdown.h"
 
@@ -74,6 +75,14 @@ FtbPage::FtbPage(NewInstanceDialog* dialog, QWidget* parent) : QWidget(parent), 
     connect(m_ui->versionSelectionBox, &QComboBox::currentTextChanged, this, &FtbPage::onVersionSelectionChanged);
 
     m_ui->packDescription->setMetaEntry("FTBPacks");
+
+    // The root is a grid layout with no free top row, so the notice goes in a new row at the bottom.
+    auto* notice = new OfflineNotice(OfflineNotice::modpacksMessage(), this);
+    m_ui->gridLayout->addWidget(notice, m_ui->gridLayout->rowCount(), 0, 1, 2);
+    connect(notice, &OfflineNotice::refreshRequested, this, [this] {
+        m_listModel->request();
+        m_initialised = true;
+    });
 }
 
 FtbPage::~FtbPage()
@@ -106,7 +115,7 @@ void FtbPage::retranslate()
 
 void FtbPage::openedImpl()
 {
-    if (!m_initialised || m_listModel->wasAborted()) {
+    if ((!m_initialised || m_listModel->wasAborted()) && OfflineNotice::autoLoadAllowed()) {
         m_listModel->request();
         m_initialised = true;
     }

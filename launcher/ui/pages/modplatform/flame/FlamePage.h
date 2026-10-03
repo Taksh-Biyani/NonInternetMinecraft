@@ -89,7 +89,7 @@ class FlamePage : public QWidget, public ModpackProviderBasePage {
 
    private:
     Ui::FlamePage* m_ui = nullptr;
-    class OfflineRefreshButton* m_refreshButton = nullptr;
+    class OfflineNotice* m_offlineNotice = nullptr;
     NewInstanceDialog* m_dialog = nullptr;
     Flame::ListModel* m_listModel = nullptr;
     ModPlatform::IndexedPack::Ptr m_current;
