@@ -179,11 +179,8 @@ void JavaChecker::finished(int exitcode, QProcess::ExitStatus status)
 void JavaChecker::error(QProcess::ProcessError err)
 {
     if (err == QProcess::FailedToStart) {
-        qDebug() << "Java checker has failed to start:" << process->errorString();
-        qDebug() << "Process environment:";
-        qDebug() << process->environment();
-        qDebug() << "Native environment:";
-        qDebug() << QProcessEnvironment::systemEnvironment().toStringList();
+        // Don't log the environment: it can hold tokens and passwords, and users share these logs.
+        qDebug() << "Java checker has failed to start:" << process->errorString() << "path:" << m_path;
         killTimer.stop();
 
         Result result = {
