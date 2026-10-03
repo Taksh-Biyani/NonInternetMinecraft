@@ -185,6 +185,8 @@ set(NET_SOURCES
     offline/LaunchCompleteness.h
     offline/OfflineName.cpp
     offline/OfflineName.h
+    offline/JavaChoice.cpp
+    offline/JavaChoice.h
     offline/BundleExportTask.cpp
     offline/BundleExportTask.h
     net/flame/FetchFlameAPIKey.cpp

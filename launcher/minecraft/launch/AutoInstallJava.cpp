@@ -55,6 +55,7 @@
 #include "minecraft/MinecraftInstance.h"
 #include "minecraft/PackProfile.h"
 #include "net/Mode.h"
+#include "offline/JavaChoice.h"
 #include "offline/LaunchCompleteness.h"
 #include "tasks/SequentialTask.h"
 
@@ -123,15 +124,24 @@ void AutoInstallJava::useInstalledJava()
     auto javas = APPLICATION->javalist();
     m_current_task = javas->getLoadTask();
     connect(m_current_task.get(), &Task::finished, this, [this, javas, packProfile] {
+        // Prefer the launcher's own java folder (shipped runtimes, bundles) over a Java installed on Windows.
+        QList<JavaChoice::Candidate> candidates;
+        QList<JavaInstallPtr> installs;
         for (auto i = 0; i < javas->count(); i++) {
-            auto java = std::dynamic_pointer_cast<JavaInstall>(javas->at(i));
-            if (java && packProfile->getProfile()->getCompatibleJavaMajors().contains(java->id.major())) {
-                if (!java->is_64bit) {
-                    emit logLine(tr("The automatic Java mechanism detected a 32-bit installation of Java."), MessageLevel::Launcher);
-                }
-                setJavaPath(java->path);
-                return;
+            if (auto java = std::dynamic_pointer_cast<JavaInstall>(javas->at(i))) {
+                candidates.append({ java->path, java->id.major() });
+                installs.append(java);
             }
+        }
+        const int chosen = JavaChoice::pick(candidates, packProfile->getProfile()->getCompatibleJavaMajors(),
+                                            QDir(APPLICATION->javaPath()).absolutePath());
+        if (chosen >= 0) {
+            const auto& java = installs.at(chosen);
+            if (!java->is_64bit) {
+                emit logLine(tr("The automatic Java mechanism detected a 32-bit installation of Java."), MessageLevel::Launcher);
+            }
+            setJavaPath(java->path);
+            return;
         }
         // Offline nothing can be downloaded: record the missing Java so OfflineLaunchCheck reports it together with any
         // missing files, instead of starting the game with a Java that can't run it.
