@@ -2,30 +2,468 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
 <title>PineconeMC Offline guide</title>
 <style>
-body { font-family: "Segoe UI", Arial, sans-serif; max-width: 46em; margin: 2em auto; padding: 0 1em; line-height: 1.5; }
-h2 { margin-top: 2em; }
+:root {
+  --bg: #ffffff; --text: #1b1b1b; --muted: #4a4a4a; --accent: #0b5cad; --box: #f2f5f9; --border: #c9d2dd;
+  --tip: #e9f6ec; --tip-border: #2e7d32; --warn: #fff4e0; --warn-border: #b26a00;
+}
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #161a1f; --text: #eceff3; --muted: #b8c0ca; --accent: #7cb8ff; --box: #222831; --border: #3a4350;
+    --tip: #1d2e22; --tip-border: #6fcf7c; --warn: #33291a; --warn-border: #f0b45a;
+  }
+}
+* { box-sizing: border-box; }
+body { background: var(--bg); color: var(--text); font-family: "Segoe UI", Arial, sans-serif; font-size: 17px;
+       line-height: 1.6; max-width: 50em; margin: 0 auto; padding: 1.5em 1.2em 4em; }
+h1 { font-size: 2em; margin-bottom: 0.2em; }
+h2 { margin-top: 2.4em; padding-top: 0.6em; border-top: 2px solid var(--border); }
+h3 { margin-top: 1.6em; }
+a { color: var(--accent); }
+a:focus, summary:focus { outline: 3px solid var(--accent); outline-offset: 2px; }
+.lead { color: var(--muted); font-size: 1.1em; margin-top: 0; }
+nav { background: var(--box); border: 1px solid var(--border); border-radius: 8px; padding: 0.8em 1.4em; }
+nav ol { margin: 0.4em 0; padding-left: 1.4em; }
+kbd, .ui { background: var(--box); border: 1px solid var(--border); border-radius: 4px; padding: 0 0.35em; white-space: nowrap; }
+.ui { font-weight: 600; }
+.tip, .warn { border-left: 5px solid; border-radius: 4px; padding: 0.6em 1em; margin: 1em 0; }
+.tip { background: var(--tip); border-color: var(--tip-border); }
+.warn { background: var(--warn); border-color: var(--warn-border); }
+.flow { display: flex; flex-wrap: wrap; align-items: stretch; justify-content: center; gap: 0.6em; margin: 1.4em 0; }
+.flow .step { background: var(--box); border: 2px solid var(--border); border-radius: 10px; padding: 0.7em 1em; text-align: center; min-width: 11em; }
+.flow .arrow { align-self: center; font-size: 1.8em; color: var(--muted); }
+table { border-collapse: collapse; width: 100%; margin: 1em 0; }
+th, td { border: 1px solid var(--border); padding: 0.45em 0.7em; text-align: left; vertical-align: top; }
+th { background: var(--box); }
+details { background: var(--box); border: 1px solid var(--border); border-radius: 6px; padding: 0.5em 1em; margin: 0.6em 0; }
+summary { cursor: pointer; font-weight: 600; }
+@media print { nav { display: none; } h2 { page-break-before: always; } details { display: block; } }
 </style>
 </head>
 <body>
+
 <h1>PineconeMC Offline guide</h1>
-<p>This guide is still being written. Each section below already has its final place, so the help buttons in the launcher open the right one.</p>
-<h2 id="start">What PineconeMC Offline is</h2>
-<h2 id="install">Installing the launcher</h2>
-<h2 id="first-run">First start and player names</h2>
-<h2 id="offline-mode">Offline mode</h2>
-<h2 id="make-bundle">Making a bundle on a computer with internet</h2>
-<h2 id="bundle-modpacks">Bundling modpacks (Modrinth and CurseForge)</h2>
-<h2 id="import-bundle">Importing a bundle</h2>
-<h2 id="updating">Updating Minecraft or a mod loader</h2>
-<h2 id="java">Java</h2>
-<h2 id="worlds">Backing up and moving worlds</h2>
-<h2 id="lan">Playing together on LAN</h2>
-<h2 id="update-launcher">Updating the launcher</h2>
-<h2 id="accessibility">Accessibility</h2>
-<h2 id="troubleshooting">Troubleshooting</h2>
-<h2 id="missing-files">When a game says files are missing</h2>
-<h2 id="legal">Legal and credits</h2>
+<p class="lead">Play Minecraft on computers without internet. This guide works without internet too: it's a single file that came with the launcher.</p>
+
+<nav aria-label="Contents">
+<strong>Contents</strong>
+<ol>
+  <li><a href="#start">What PineconeMC Offline is</a></li>
+  <li><a href="#install">Installing the launcher</a></li>
+  <li><a href="#first-run">First start and player names</a></li>
+  <li><a href="#offline-mode">Offline mode</a></li>
+  <li><a href="#make-bundle">Making a bundle on a computer with internet</a></li>
+  <li><a href="#bundle-modpacks">Bundling modpacks (Modrinth and CurseForge)</a></li>
+  <li><a href="#import-bundle">Importing a bundle</a></li>
+  <li><a href="#updating">Updating Minecraft or a mod loader</a></li>
+  <li><a href="#java">Java</a></li>
+  <li><a href="#worlds">Backing up and moving worlds</a></li>
+  <li><a href="#lan">Playing together on LAN</a></li>
+  <li><a href="#update-launcher">Updating the launcher</a></li>
+  <li><a href="#accessibility">Accessibility</a></li>
+  <li><a href="#troubleshooting">Troubleshooting</a></li>
+  <li><a href="#missing-files">When a game says files are missing</a></li>
+  <li><a href="#legal">Legal and credits</a></li>
+</ol>
+</nav>
+
+<!-- ============================================================ -->
+<h2 id="start">1. What PineconeMC Offline is</h2>
+<p>PineconeMC Offline is a Minecraft launcher for computers that have <strong>no internet connection</strong>. It is based on PineconeMC and Prism Launcher, so it looks and works much like them.</p>
+<p>A normal launcher downloads the game the first time you play, which isn't possible without internet. This launcher uses <strong>offline bundles</strong> instead. A bundle is one <code>.zip</code> file that holds everything a game needs:</p>
+<ul>
+  <li>Minecraft itself;</li>
+  <li>mod loaders such as Fabric or Forge;</li>
+  <li>whole modpacks;</li>
+  <li>the right Java.</li>
+</ul>
+<p>You make a bundle on any computer with internet, carry it over on a USB stick, and import it.</p>
+
+<div class="flow" role="img" aria-label="Computer with internet, Export Bundle, then USB stick with one zip file, then computer without internet, Import Bundle">
+  <div class="step"><strong>Computer with internet</strong><br><span class="ui">Export Bundle</span></div>
+  <div class="arrow" aria-hidden="true">&rarr;</div>
+  <div class="step"><strong>USB stick</strong><br>one .zip file</div>
+  <div class="arrow" aria-hidden="true">&rarr;</div>
+  <div class="step"><strong>Computer without internet</strong><br><span class="ui">Import Bundle</span></div>
+</div>
+
+<p>Both computers use this same launcher: the online one to <em>make</em> bundles, the offline one to <em>import</em> them.</p>
+
+<h3>What you need</h3>
+<ul>
+  <li>Windows 10 or Windows 11, 64-bit.</li>
+  <li>Disk space:
+    <ul>
+      <li>about 1 GB for the launcher and its Java;</li>
+      <li>about 0.6 GB for each Minecraft version;</li>
+      <li>more for modpacks and worlds.</li>
+    </ul>
+  </li>
+  <li>A copy of Minecraft: Java Edition that you own (see <a href="#legal">Legal</a>).</li>
+  <li>For making bundles: any Windows computer with internet, and a USB stick big enough for the bundle.</li>
+</ul>
+<p>Playing together on a local network (LAN) works without internet. See <a href="#lan">Playing together on LAN</a>.</p>
+
+<!-- ============================================================ -->
+<h2 id="install">2. Installing the launcher</h2>
+<p>There is no installer. The launcher is a folder that runs from wherever you put it, and it keeps everything (games, worlds, settings) inside that folder.</p>
+<ol>
+  <li>Copy the launcher folder (or unzip the launcher zip) to where you want it:
+    <ul>
+      <li><strong>On the computer</strong>, for example <code>C:\Games\PineconeMC Offline</code>. This is the fastest.</li>
+      <li><strong>On a USB stick</strong>, to carry your games between computers. It works, but games load more slowly from most sticks.</li>
+    </ul>
+  </li>
+  <li>Open the folder and double-click <span class="ui">pineconemc-offline.exe</span>.</li>
+</ol>
+<div class="warn"><strong>"Windows protected your PC"?</strong> Windows SmartScreen shows this for programs it hasn't seen often. Click <span class="ui">More info</span>, then <span class="ui">Run anyway</span>. You only need to do this once per computer.</div>
+<div class="tip">Two kinds of folder cause problems:
+  <ul>
+    <li>folders that need administrator rights, such as <code>C:\Program Files</code>;</li>
+    <li>folder names containing <code>!</code>, which confuses Java.</li>
+  </ul>
+</div>
+<p><strong>Desktop shortcut:</strong> right-click <span class="ui">pineconemc-offline.exe</span> → <span class="ui">Show more options</span> → <span class="ui">Send to</span> → <span class="ui">Desktop (create shortcut)</span>.</p>
+<p><strong>Uninstall:</strong> delete the folder. Copy your worlds out first if you want to keep them (see <a href="#worlds">Worlds</a>).</p>
+
+<!-- ============================================================ -->
+<h2 id="first-run">3. First start and player names</h2>
+<p>The first time you start the launcher, a short welcome wizard opens:</p>
+<ol>
+  <li><strong>Language</strong>, if the launcher can't tell which one you use.</li>
+  <li><strong>Welcome.</strong> A short explanation of bundles. Here you can already make the text bigger or switch on high contrast (see <a href="#accessibility">Accessibility</a>).</li>
+  <li><strong>Player name.</strong> The name you have in the game, and the name friends see on LAN.
+    <ul>
+      <li>3 to 16 characters: letters A–Z, digits 0–9 and <code>_</code>. No spaces.</li>
+      <li>The wizard says right away if a name won't work, and why.</li>
+      <li>Leave it empty to skip; you can add a name later.</li>
+    </ul>
+  </li>
+  <li><strong>You're ready.</strong> Pick one of these, or just press <span class="ui">Finish</span>:
+    <ul>
+      <li><span class="ui">Import a bundle</span></li>
+      <li><span class="ui">Create an instance</span></li>
+      <li><span class="ui">Open the guide</span></li>
+    </ul>
+  </li>
+</ol>
+
+<h3>Accounts</h3>
+<p>Open <span class="ui">Accounts</span> (top right) → <span class="ui">Manage Accounts</span> to add more players or switch between them.</p>
+<ul>
+  <li><strong>Offline accounts</strong> are just a name:
+    <ul>
+      <li>no internet and no password needed;</li>
+      <li>the same name always gets the same player identity, on any computer, so your inventory in a shared world follows your name.</li>
+    </ul>
+  </li>
+  <li><strong>Microsoft accounts</strong> (and Ely.by accounts) need internet to sign in. Add them on a computer with internet if you want your skin and online servers.</li>
+</ul>
+
+<!-- ============================================================ -->
+<h2 id="offline-mode">4. Offline mode</h2>
+<p>When the launcher is offline, it never tries to download anything. It uses only what you've imported from bundles.</p>
+<p>A small <span class="ui">Offline</span> button at the bottom right of the window shows when this is the case. Click it to open the setting.</p>
+<p>The setting is in <span class="ui">Settings</span> → <span class="ui">Services</span> → <span class="ui">Offline mode</span>:</p>
+<table>
+  <tr><th>Choice</th><th>What it does</th></tr>
+  <tr><td><strong>Automatic</strong> (normal)</td><td>Checks for internet at start-up, which takes at most a few seconds. With internet the launcher works normally; without it, the launcher is offline.</td></tr>
+  <tr><td><strong>Always offline</strong></td><td>Never checks, never downloads. Good for computers that never have internet.</td></tr>
+  <tr><td><strong>Always online</strong></td><td>Always behaves like a normal launcher. Use this on the computer that makes bundles if the automatic check gets it wrong.</td></tr>
+</table>
+<p>What changes when the launcher is offline:</p>
+<ul>
+  <li>Version lists show only versions you've imported. Their <span class="ui">Refresh</span> buttons are greyed out.</li>
+  <li>The Modrinth, CurseForge, ATLauncher, FTB and Technic pages show a "You're offline" note instead of a list. Its <span class="ui">Refresh</span> button tries again, in case this computer has just been connected.</li>
+  <li>News, update checks and translation downloads are skipped quietly.</li>
+</ul>
+<p>Offline mode only affects the <em>launcher</em>. Inside the game, LAN and servers work as usual.</p>
+
+<!-- ============================================================ -->
+<h2 id="make-bundle">5. Making a bundle on a computer with internet</h2>
+<p>Do this on a computer with internet, using PineconeMC Offline. Either copy the launcher folder onto that computer, or run it from the USB stick.</p>
+<ol>
+  <li>Click <span class="ui">Export Bundle</span> in the toolbar.</li>
+  <li>Choose <span class="ui">Minecraft versions and mod loaders</span>.</li>
+  <li>Pick the <span class="ui">Minecraft version</span>. Tick <span class="ui">Show snapshots</span> if you want test versions.</li>
+  <li>Pick a <span class="ui">Mod loader</span> (Fabric, Quilt, Forge, NeoForge…) and its version, or leave <span class="ui">None (vanilla)</span>.</li>
+  <li>Click <span class="ui">Add to bundle</span>. Repeat for other loaders or Minecraft versions; they all go into the same file. Loaders for the same Minecraft version share most files, so they add little size.</li>
+  <li>The right Java for each version is added automatically. Click <span class="ui">Next</span>.</li>
+  <li>On <strong>Review</strong>, check the list and where the file is saved:
+    <ul>
+      <li>if a USB stick is plugged in, the launcher suggests it; otherwise the Desktop;</li>
+      <li>use <span class="ui">Browse...</span> to change it.</li>
+    </ul>
+  </li>
+  <li>Click <span class="ui">Build bundle</span>. The launcher downloads and packs everything; you can keep using it meanwhile. <span class="ui">Cancel</span> stops at any time and leaves nothing behind.</li>
+  <li>When it says <strong>Done!</strong>, click <span class="ui">Show in folder</span>. That <code>.zip</code> file is your bundle.</li>
+</ol>
+<table>
+  <tr><th>How big is a bundle?</th><th>About</th></tr>
+  <tr><td>One Minecraft version with its Java</td><td>0.6 GB</td></tr>
+  <tr><td>Each extra loader for the same version</td><td>a few MB to 40 MB</td></tr>
+  <tr><td>A modpack</td><td>the version, plus the modpack's own size</td></tr>
+</table>
+<div class="tip">Wait for the file to finish copying to the USB stick, then use <span class="ui">Eject</span> in Windows before you pull it out. A bundle that wasn't copied completely is refused as "damaged" on import.</div>
+
+<!-- ============================================================ -->
+<h2 id="bundle-modpacks">6. Bundling modpacks (Modrinth and CurseForge)</h2>
+<p>Modpack websites can't be browsed without internet, so you bring the finished modpack over as a bundle:</p>
+<ol>
+  <li>On the computer with internet, click <span class="ui">Add Instance</span> and choose <span class="ui">Modrinth</span> or <span class="ui">CurseForge</span> on the left. Find the modpack and install it as usual.</li>
+  <li>Start it once to check it works. This is optional, but it saves surprises later.</li>
+  <li>Right-click the new instance → <span class="ui">Export</span> → <span class="ui">Offline Bundle</span>.</li>
+  <li>The bundle wizard opens with that instance already chosen. Tick <span class="ui">Include worlds (saves)</span> only if you want to take its worlds along too.</li>
+  <li>Click <span class="ui">Next</span> → <span class="ui">Build bundle</span>, and copy the file to the USB stick.</li>
+</ol>
+<p>The bundle contains:</p>
+<ul>
+  <li>the instance with all its mods, configs and resource packs;</li>
+  <li>the Minecraft version, loader and Java it needs.</li>
+</ul>
+<p>On the offline computer, importing it gives you a ready-to-play instance.</p>
+<p>The same way works for <strong>any instance</strong> you've built yourself. On the computer with internet, add mods to it (<span class="ui">Edit</span> → <span class="ui">Mods</span> → <span class="ui">Download mods</span>), then export it as an offline bundle.</p>
+
+<!-- ============================================================ -->
+<h2 id="import-bundle">7. Importing a bundle</h2>
+<p>On the offline computer:</p>
+<ol>
+  <li>Plug in the USB stick.</li>
+  <li>Click <span class="ui">Import Bundle</span> in the toolbar. The file picker opens on the USB stick. Pick the bundle's <code>.zip</code> file.
+    <br>Two other ways do the same:
+    <ul>
+      <li>drag the <code>.zip</code> onto the launcher window;</li>
+      <li>use <span class="ui">Add Instance</span> → <span class="ui">Import</span>.</li>
+    </ul>
+  </li>
+  <li>A preview lists what the bundle adds and its size. Things you already have are marked "already installed" and skipped. Click <span class="ui">Import</span>.</li>
+  <li>Wait for the progress bar. The bundle is checked before anything is installed, so a damaged bundle changes nothing.</li>
+  <li>When it's done:
+    <ul>
+      <li>For Minecraft versions and loaders, click <span class="ui">Create instance</span> and pick the version.</li>
+      <li>For an instance or modpack bundle, click <span class="ui">Play</span>.</li>
+    </ul>
+  </li>
+</ol>
+<p>Importing never deletes or overwrites your worlds, instances or settings. Importing the same bundle twice is harmless.</p>
+
+<h3>Creating an instance from an imported version</h3>
+<ol>
+  <li>Click <span class="ui">Add Instance</span> and give it a name.</li>
+  <li>Pick the Minecraft version. Only imported versions are listed while offline.</li>
+  <li>On the right, pick a mod loader if you want one.</li>
+</ol>
+
+<!-- ============================================================ -->
+<h2 id="updating">8. Updating Minecraft or a mod loader</h2>
+<p>Updating is the same as getting something new: make a bundle with the new version on a computer with internet, and import it. Old versions stay installed, so nothing you have stops working.</p>
+<p>Then use the new version in one of these ways:</p>
+<ul>
+  <li><strong>Move an instance to the new version:</strong> select it → <span class="ui">Edit</span> → <span class="ui">Version</span> → select <em>Minecraft</em> or the loader → <span class="ui">Change version</span>. Back up your worlds first: a world opened in a newer Minecraft can't go back to an older one.</li>
+  <li><strong>Make a new instance</strong> with the new version and copy your worlds into it (see <a href="#worlds">Worlds</a>).</li>
+  <li><strong>Modpacks:</strong>
+    <ol>
+      <li>Update the modpack on the computer with internet.</li>
+      <li>Export it and import it again. It comes in as a new instance next to the old one.</li>
+      <li>Move your worlds over, and delete the old instance when you're happy.</li>
+    </ol>
+  </li>
+</ul>
+
+<!-- ============================================================ -->
+<h2 id="java">9. Java</h2>
+<p>Minecraft needs Java, and different Minecraft versions need different Java versions. The launcher comes with the common ones and picks the right one for each game automatically:</p>
+<table>
+  <tr><th>Minecraft</th><th>Java</th></tr>
+  <tr><td>26.x</td><td>25</td></tr>
+  <tr><td>1.20.5 – 1.21.x</td><td>21</td></tr>
+  <tr><td>1.17 – 1.20.4</td><td>17</td></tr>
+  <tr><td>1.16.5 and older</td><td>8</td></tr>
+</table>
+<p>Bundles also include the Java their versions need, so a bundle always brings what it needs.</p>
+<p>If a game still can't find a suitable Java, it tells you which one is missing (see <a href="#missing-files">files are missing</a>). Make a bundle of that Minecraft version: that adds its Java.</p>
+<p>You don't need to install Java on Windows. Leave <span class="ui">Settings</span> → <span class="ui">Java</span> on automatic unless you know you need something else.</p>
+
+<!-- ============================================================ -->
+<h2 id="worlds">10. Backing up and moving worlds</h2>
+<p>Each instance keeps its own worlds. Select the instance → <span class="ui">Edit</span> → <span class="ui">Worlds</span>:</p>
+<ul>
+  <li><span class="ui">View Folder</span> opens the <code>saves</code> folder. Each world is one folder in there.</li>
+  <li><strong>Back up</strong> a world by copying its folder somewhere safe, such as another drive or a USB stick. Close the game first.</li>
+  <li><span class="ui">Add</span> brings in a world from a <code>.zip</code> file. You can also copy a world folder into another instance's <code>saves</code> folder.</li>
+  <li><span class="ui">Copy</span> makes a duplicate inside the same instance, handy before trying something risky.</li>
+</ul>
+<p><strong>To another computer</strong>, either:</p>
+<ul>
+  <li>copy the world folder over on a USB stick and put it in an instance's <code>saves</code> folder there; or</li>
+  <li>export the whole instance as an offline bundle with <span class="ui">Include worlds (saves)</span> ticked.</li>
+</ul>
+<div class="warn">Open a world only in the same Minecraft version or a newer one. Older versions can damage newer worlds.</div>
+
+<!-- ============================================================ -->
+<h2 id="lan">11. Playing together on LAN</h2>
+<p>Computers on the same network can play together with no internet. "The same network" means the same Wi-Fi, or connected to the same router or switch.</p>
+<ol>
+  <li>Everyone uses the <strong>same Minecraft version and the same mods</strong>. The easiest way: import the same bundle on every computer.</li>
+  <li>Every player uses a <strong>different player name</strong>.</li>
+  <li><strong>The host</strong> starts a world, presses <kbd>Esc</kbd> → <span class="ui">Open to LAN</span> → <span class="ui">Start LAN World</span>. The game shows a port number.</li>
+  <li><strong>The others</strong> open <span class="ui">Multiplayer</span>. The world usually appears at the bottom after a few seconds. If it doesn't:
+    <ul>
+      <li>use <span class="ui">Direct Connection</span> and type the host computer's address and the port, like <code>192.168.1.20:51234</code>;</li>
+      <li>to find the address, on the host press <kbd>Win</kbd>+<kbd>R</kbd>, type <code>cmd</code>, then type <code>ipconfig</code> and look for "IPv4 Address".</li>
+    </ul>
+  </li>
+</ol>
+<div class="warn"><strong>Windows Firewall:</strong> the first time a game hosts or joins, Windows may ask whether Java may use the network. Tick <span class="ui">Private networks</span> and click <span class="ui">Allow access</span>.
+  <br>If you clicked Cancel by mistake, LAN games won't be found. Ask whoever looks after the computer to allow <code>javaw.exe</code> in the firewall.</div>
+
+<h3>Which accounts can play together</h3>
+<table>
+  <tr><th>Host</th><th>Joining player</th><th>Works?</th></tr>
+  <tr><td>Offline name</td><td>Offline name</td><td>Yes</td></tr>
+  <tr><td>Offline name</td><td>Microsoft account</td><td>Yes</td></tr>
+  <tr><td>Microsoft account</td><td>Offline name</td><td>No: the host should use an offline name</td></tr>
+  <tr><td>Microsoft / Ely.by</td><td>Microsoft / Ely.by</td><td>Yes (with internet, as in normal Minecraft)</td></tr>
+</table>
+<p><strong>Rule of thumb: the host uses an offline name.</strong></p>
+<p>Good to know: a world hosted with an offline name lets anyone on the network join under any name. That's fine at home or in a classroom, but don't open such a world on a network you don't trust.</p>
+
+<!-- ============================================================ -->
+<h2 id="update-launcher">12. Updating the launcher</h2>
+<p>New versions of PineconeMC Offline come as a zip, the same way as the first one. Your instances, worlds, accounts and settings live in the launcher folder, and they are kept.</p>
+<ol>
+  <li>Close the launcher and any running game.</li>
+  <li>Make a backup copy of the launcher folder, or at least of its <code>instances</code> folder. It's quick insurance.</li>
+  <li>Copy everything from the new zip <em>into</em> your existing launcher folder. When Windows asks, choose <span class="ui">Replace the files in the destination</span>.</li>
+  <li>Start <span class="ui">pineconemc-offline.exe</span> as usual.</li>
+</ol>
+<p>Don't delete the old folder and start fresh: that would lose your games. The update zip contains only program files, never your games or settings.</p>
+
+<!-- ============================================================ -->
+<h2 id="accessibility">13. Accessibility</h2>
+<p>Open <span class="ui">Settings</span> → <span class="ui">Accessibility</span>. The same options are on the first page of the welcome wizard.</p>
+<ul>
+  <li><strong>Text size:</strong> 100% to 200%, for all launcher text.</li>
+  <li><strong>High contrast:</strong>
+    <ul>
+      <li><em>Automatic</em> (normal): switches on by itself when Windows' own high-contrast mode is on.</li>
+      <li><em>On: white text on black</em>, or <em>On: black text on white</em>.</li>
+      <li>High contrast also draws a thick outline around whatever the keyboard is on.</li>
+    </ul>
+  </li>
+</ul>
+<h3>Keyboard</h3>
+<ul>
+  <li><kbd>Tab</kbd> and <kbd>Shift</kbd>+<kbd>Tab</kbd> move between controls. <kbd>Space</kbd> or <kbd>Enter</kbd> presses a button. Arrow keys move in lists.</li>
+  <li>Underlined letters in labels: press <kbd>Alt</kbd> + that letter to jump there.</li>
+  <li><kbd>F1</kbd> opens this guide.</li>
+  <li>Windows' screen reader, Narrator (<kbd>Ctrl</kbd>+<kbd>Win</kbd>+<kbd>Enter</kbd>), reads the launcher's buttons, fields and messages.</li>
+</ul>
+<h3>In the game</h3>
+<p>Minecraft has its own options under <span class="ui">Options</span> → <span class="ui">Accessibility Settings</span>: narrator, subtitles, text background, high-contrast text, reduced screen effects and more.</p>
+<p>The size of the game's menus is set in <span class="ui">Options</span> → <span class="ui">Video Settings</span> → <span class="ui">GUI Scale</span>.</p>
+
+<!-- ============================================================ -->
+<h2 id="troubleshooting">14. Troubleshooting</h2>
+<p>Every error message in the launcher says what happened and what to do. Most also have a <span class="ui">Details</span> section and a <span class="ui">Copy details</span> button. Paste those details when you ask someone for help.</p>
+
+<h3>Importing a bundle</h3>
+<details><summary>"This zip isn't an offline bundle…"</summary>
+<p>The file is a normal zip, a modpack file or an instance export, not a bundle made with <span class="ui">Export Bundle</span>.</p>
+<p>Modpack files from websites need internet to install. Install the modpack on a computer with internet and export it as an offline bundle (see <a href="#bundle-modpacks">Bundling modpacks</a>).</p></details>
+<details><summary>"This bundle is damaged or wasn't copied completely…"</summary>
+<p>The file on the USB stick doesn't match what was written. Usually the stick was pulled out before copying finished.</p>
+<p>Copy the bundle to the stick again, use <span class="ui">Eject</span> before removing it, and retry. If it keeps happening, try another USB stick, or make the bundle again.</p></details>
+<details><summary>"This bundle was made by a newer version of PineconeMC Offline…"</summary>
+<p>Update the launcher on this computer first (see <a href="#update-launcher">Updating the launcher</a>). The new launcher can travel on the same USB stick.</p></details>
+<details><summary>"This bundle tries to put files where a bundle isn't allowed to…"</summary>
+<p>The file wasn't made by PineconeMC Offline, or was changed afterwards. Nothing was installed. Make the bundle again with <span class="ui">Export Bundle</span>.</p></details>
+<details><summary>"Not enough free space on this drive…"</summary>
+<p>The message says how much space is needed. To fix it, either:</p>
+<ul>
+  <li>free up space: empty the Recycle Bin, or delete instances you don't play; or</li>
+  <li>move the launcher folder to a bigger drive.</li>
+</ul></details>
+<details><summary>"PineconeMC Offline couldn't write to its folder…"</summary>
+<p>The drive is full, or the folder is read-only (for example inside <code>C:\Program Files</code>, or on a write-protected USB stick). Move the launcher folder somewhere you can write, such as <code>C:\Games</code>.</p></details>
+
+<h3>Making a bundle</h3>
+<details><summary>"Making an offline bundle downloads everything it needs…"</summary>
+<p>Making a bundle needs internet. Connect, then try again.</p>
+<p>If the computer is connected but the launcher still thinks it's offline, set <span class="ui">Settings</span> → <span class="ui">Services</span> → <span class="ui">Offline mode</span> to <em>Automatic</em> or <em>Always online</em>.</p></details>
+<details><summary>"Couldn't download …"</summary>
+<p>The internet connection dropped, or a download server didn't answer. Check the connection and click <span class="ui">Build bundle</span> again. Files already downloaded are reused.</p></details>
+<details><summary>"Couldn't write the bundle file…"</summary>
+<p>The USB stick or folder is full or write-protected. Either free up space, or save the bundle to the Desktop with <span class="ui">Browse...</span> and copy it to the stick afterwards.</p>
+<p>Bundles over 4 GB need a stick formatted as exFAT or NTFS, not FAT32.</p></details>
+<details><summary>"That instance can't be found any more…"</summary>
+<p>The instance was deleted or renamed while the wizard was open. Pick it again in the list.</p></details>
+
+<h3>Playing</h3>
+<details><summary>A game says files are missing</summary>
+<p>See <a href="#missing-files">When a game says files are missing</a>.</p></details>
+<details><summary>The game crashes or closes right after starting</summary>
+<p>Select the instance → <span class="ui">Edit</span> → <span class="ui">Minecraft Log</span> to read what happened. Common causes:</p>
+<ul>
+  <li>a mod that doesn't fit the Minecraft or loader version: remove the last mod you added;</li>
+  <li>too little memory: raise it under <span class="ui">Edit</span> → <span class="ui">Settings</span> → <span class="ui">Java</span>.</li>
+</ul>
+<p>If a modpack worked on the computer you made the bundle on, the cause is usually memory.</p></details>
+<details><summary>Friends can't find my LAN world</summary>
+<ul>
+  <li>Check that all computers are on the same network.</li>
+  <li>Check that Windows Firewall allowed Java (see <a href="#lan">LAN</a>).</li>
+  <li>Try <span class="ui">Direct Connection</span> with the host's address and port.</li>
+</ul>
+<p>On some school or guest Wi-Fi networks, computers can't see each other at all; a simple router or switch fixes that.</p></details>
+<details><summary>"Invalid session" or "Failed to verify username" when joining</summary>
+<p>The host is using a Microsoft account while you use an offline name. The host should switch to an offline name (see <a href="#lan">Which accounts can play together</a>).</p></details>
+<details><summary>The Modrinth or CurseForge page says "You're offline"</summary>
+<p>That's expected without internet: modpacks can't be browsed. Bring them over as bundles (see <a href="#bundle-modpacks">Bundling modpacks</a>).</p>
+<p>If this computer has internet now, click <span class="ui">Refresh</span> on that note.</p></details>
+<details><summary>"Nothing is installed for this yet" in a version list</summary>
+<p>No bundle with that Minecraft version or loader has been imported on this computer. Make and import one (see <a href="#make-bundle">Making a bundle</a>).</p></details>
+<details><summary>"The guide (Guide.html) belongs in the launcher's folder…"</summary>
+<p>The guide file was lost when copying the launcher. Copy the whole launcher folder again from the USB stick or zip. Your games are kept if you copy <em>into</em> the existing folder.</p></details>
+
+<!-- ============================================================ -->
+<h2 id="missing-files">15. When a game says files are missing</h2>
+<p>Before a game starts without internet, the launcher checks that everything it needs is on this computer. If something isn't, a window titled <strong>"Can't start …"</strong> lists what's missing in plain words, for example:</p>
+<ul>
+  <li><em>Minecraft 1.21.1</em> or <em>Fabric Loader 0.19.5</em>: that version was never imported here.</li>
+  <li><em>The Minecraft 26.3 game file</em> or <em>N game library files</em>: parts of the game are missing.</li>
+  <li><em>Minecraft 26.3 sounds and textures</em>: the game's assets are missing.</li>
+  <li><em>Java 25</em>: no Java on this computer can run this version.</li>
+</ul>
+<p><strong>The fix is always the same:</strong></p>
+<ol>
+  <li>On a computer with internet, make a bundle with that Minecraft version (and the loader, if one is listed). Or export the instance itself as an offline bundle.</li>
+  <li>Click <span class="ui">Import Bundle...</span> right in that window (or on the toolbar) and pick the file.</li>
+  <li>Start the game again.</li>
+</ol>
+<p>How it usually happens:</p>
+<ul>
+  <li>An instance was copied from another computer without its Minecraft version. Export it as an offline <em>instance</em> bundle instead, which carries everything.</li>
+  <li>An instance's version was changed (<span class="ui">Edit</span> → <span class="ui">Version</span>) to one that isn't imported.</li>
+  <li>Files were deleted from the launcher's <code>libraries</code>, <code>assets</code> or <code>java</code> folders.</li>
+</ul>
+<p><span class="ui">Details</span> in that window lists every missing file, if someone helping you wants to see them.</p>
+
+<!-- ============================================================ -->
+<h2 id="legal">16. Legal and credits</h2>
+<p><strong>You need to own Minecraft.</strong> PineconeMC Offline is a launcher; it doesn't sell or give away Minecraft. Buy Minecraft: Java Edition from minecraft.net for each player.</p>
+<p>Minecraft is a trademark of Mojang Synergies AB. This launcher is not an official Minecraft product and is not approved by or associated with Mojang or Microsoft.</p>
+<p>PineconeMC Offline is free software under the GNU General Public License version 3 (GPL-3.0). It is built on the work of:</p>
+<ul>
+  <li><strong>PineconeMC</strong> (ElyPrismLauncher), a fork of Prism Launcher with Ely.by support. GPL-3.0.</li>
+  <li><strong>Prism Launcher</strong> and its contributors, and before it PolyMC and MultiMC. GPL-3.0 and Apache-2.0 parts.</li>
+  <li><strong>authlib-injector</strong> by yushijinhun, used unchanged so offline names can play on LAN. AGPL-3.0 with the authlib-injector exception; its license is in the <code>jars</code> folder.</li>
+  <li><strong>Eclipse Temurin</strong> Java runtimes by the Eclipse Adoptium project. GPL-2.0 with the Classpath Exception.</li>
+  <li><strong>Qt</strong> (LGPL-3.0) and the other libraries listed under <span class="ui">Help</span> → <span class="ui">About</span>.</li>
+</ul>
+<p>The full license texts come with the launcher and are shown under <span class="ui">Help</span> → <span class="ui">About</span>.</p>
+
 </body>
 </html>

@@ -1440,7 +1440,7 @@ install(TARGETS ${Launcher_Name}
 )
 
 # The bundled guide (spec §8.2): Guide.html sits next to the exe; GuideButton opens it.
-install(FILES "${CMAKE_SOURCE_DIR}/docs/guide/Guide.html" DESTINATION "${BINARY_DEST_DIR}")
+install(FILES "${CMAKE_SOURCE_DIR}/docs/guide/Guide.html" "${CMAKE_SOURCE_DIR}/docs/guide/README-FIRST.txt" DESTINATION "${BINARY_DEST_DIR}")
 
 # Deploy PDBs
 if(CMAKE_CXX_LINKER_SUPPORTS_PDB)
