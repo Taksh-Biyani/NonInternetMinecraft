@@ -1009,6 +1009,8 @@ SET(LAUNCHER_SOURCES
     ui/pages/global/JavaPage.h
     ui/pages/global/LanguagePage.cpp
     ui/pages/global/LanguagePage.h
+    ui/pages/global/AccessibilityPage.cpp
+    ui/pages/global/AccessibilityPage.h
     ui/pages/global/MinecraftPage.h
     ui/pages/global/LauncherPage.cpp
     ui/pages/global/LauncherPage.h
@@ -1221,6 +1223,8 @@ SET(LAUNCHER_SOURCES
     ui/widgets/OfflineNotice.cpp
     ui/widgets/OfflineGuard.h
     ui/widgets/OfflineGuard.cpp
+    ui/widgets/AccessibilityOptionsWidget.h
+    ui/widgets/AccessibilityOptionsWidget.cpp
     ui/widgets/GuideButton.h
     ui/widgets/GuideButton.cpp
     ui/widgets/WideBar.h
