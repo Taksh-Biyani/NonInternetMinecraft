@@ -143,6 +143,7 @@
     </property>
     <addaction name="actionAddInstance"/>
     <addaction name="actionImportBundle"/>
+    <addaction name="actionExportBundle"/>
     <addaction name="separator"/>
     <addaction name="actionLaunchInstance"/>
     <addaction name="actionKillInstance"/>
@@ -304,6 +305,28 @@
    </property>
    <property name="toolTip">
     <string>Install new Minecraft versions, mod loaders, Java or a ready-to-play instance from an offline bundle (.zip), for example one on a USB stick.</string>
+   </property>
+  </action>
+  <action name="actionExportBundle">
+   <property name="icon">
+    <iconset theme="export"/>
+   </property>
+   <property name="text">
+    <string>E&amp;xport Offline Bundle...</string>
+   </property>
+   <property name="toolTip">
+    <string>Make one file with Minecraft versions, mod loaders and Java for a computer without internet.</string>
+   </property>
+  </action>
+  <action name="actionExportInstanceOfflineBundle">
+   <property name="icon">
+    <iconset theme="export"/>
+   </property>
+   <property name="text">
+    <string>Offline Bundle</string>
+   </property>
+   <property name="toolTip">
+    <string>Make one file with this instance and everything it needs, for a computer without internet.</string>
    </property>
   </action>
   <action name="actionCheckUpdate">

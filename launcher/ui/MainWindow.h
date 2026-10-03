@@ -169,6 +169,8 @@ class MainWindow : public QMainWindow {
     void on_actionExportInstanceZip_triggered();
     void on_actionExportInstanceMrPack_triggered();
     void on_actionExportInstanceFlamePack_triggered();
+    void on_actionExportBundle_triggered();
+    void on_actionExportInstanceOfflineBundle_triggered();
 
     void on_actionRenameInstance_triggered();
 

@@ -108,6 +108,7 @@
 #include "ui/dialogs/CopyInstanceDialog.h"
 #include "ui/dialogs/CreateShortcutDialog.h"
 #include "ui/dialogs/CustomMessageBox.h"
+#include "ui/dialogs/ExportBundleWizard.h"
 #include "ui/dialogs/ExportInstanceDialog.h"
 #include "ui/dialogs/ExportPackDialog.h"
 #include "ui/dialogs/FriendlyErrorDialog.h"
@@ -222,6 +223,7 @@ MainWindow::MainWindow(QWidget* parent) : QMainWindow(parent), ui(new Ui::MainWi
         exportInstanceMenu->addAction(ui->actionExportInstanceZip);
         exportInstanceMenu->addAction(ui->actionExportInstanceMrPack);
         exportInstanceMenu->addAction(ui->actionExportInstanceFlamePack);
+        exportInstanceMenu->addAction(ui->actionExportInstanceOfflineBundle);
         ui->actionExportInstance->setMenu(exportInstanceMenu);
     }
 
@@ -1673,6 +1675,20 @@ void MainWindow::on_actionExportInstanceMrPack_triggered()
             ExportPackDialog dlg(instance, this);
             dlg.exec();
         }
+    }
+}
+
+void MainWindow::on_actionExportBundle_triggered()
+{
+    ExportBundleWizard wizard(this);
+    wizard.exec();
+}
+
+void MainWindow::on_actionExportInstanceOfflineBundle_triggered()
+{
+    if (m_selectedInstance && dynamic_cast<MinecraftInstance*>(m_selectedInstance)) {
+        ExportBundleWizard wizard(this, m_selectedInstance);
+        wizard.exec();
     }
 }
 
