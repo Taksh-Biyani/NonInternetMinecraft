@@ -26,10 +26,12 @@
 #include <QStyle>
 #include <QStyleFactory>
 #include "Exception.h"
+#include "ui/themes/Accessibility.h"
 #include "ui/themes/BrightTheme.h"
 #include "ui/themes/CatPack.h"
 #include "ui/themes/CustomTheme.h"
 #include "ui/themes/DarkTheme.h"
+#include "ui/themes/HighContrastTheme.h"
 #include "ui/themes/SystemTheme.h"
 
 #include "Application.h"
@@ -138,6 +140,8 @@ void ThemeManager::initializeWidgets()
     auto darkThemeId = addTheme(std::make_unique<DarkTheme>());
     themeDebugLog() << "Loading Built-in Theme:" << darkThemeId;
     themeDebugLog() << "Loading Built-in Theme:" << addTheme(std::make_unique<BrightTheme>());
+    themeDebugLog() << "Loading Built-in Theme:" << addTheme(std::make_unique<HighContrastTheme>(true));
+    themeDebugLog() << "Loading Built-in Theme:" << addTheme(std::make_unique<HighContrastTheme>(false));
 
     themeDebugLog() << "<> Initializing System Widget Themes";
     QStringList styles = QStyleFactory::keys();
@@ -276,7 +280,13 @@ void ThemeManager::applyCurrentlySelectedTheme(bool initial)
     if (applicationTheme == "") {
         applicationTheme = m_defaultStyle;
     }
+    // Settings → Accessibility: high contrast (or, in Auto, Windows' high-contrast mode) overrides the chosen theme.
+    bool windowsLight = false;
+    const bool windowsHighContrast = Accessibility::windowsHighContrastOn(&windowsLight);
+    applicationTheme = Accessibility::effectiveTheme(Accessibility::contrastFromString(settings->get("HighContrast").toString()),
+                                                     applicationTheme, windowsHighContrast, windowsLight);
     setApplicationTheme(applicationTheme, initial);
+    Accessibility::applyTextScale(settings->get("TextScale").toInt());
     themeDebugLog() << "<> Application theme set.";
 }
 

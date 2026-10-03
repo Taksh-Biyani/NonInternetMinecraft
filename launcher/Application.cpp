@@ -669,6 +669,10 @@ Application::Application(int& argc, char** argv) : QApplication(argc, argv)
         m_settings->registerSetting("BackgroundCat", QString("kitteh"));
         m_settings->registerSetting("CatButtonVisible", true);
 
+        // Accessibility (Settings → Accessibility)
+        m_settings->registerSetting("TextScale", 100);
+        m_settings->registerSetting("HighContrast", QString("Auto"));
+
         // Remembered state
         m_settings->registerSetting("LastUsedGroupForNewInstance", QString());
 

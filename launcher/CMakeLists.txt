@@ -927,6 +927,10 @@ SET(LAUNCHER_SOURCES
     ui/themes/CustomTheme.h
     ui/themes/DarkTheme.cpp
     ui/themes/DarkTheme.h
+    ui/themes/Accessibility.cpp
+    ui/themes/Accessibility.h
+    ui/themes/HighContrastTheme.cpp
+    ui/themes/HighContrastTheme.h
     ui/themes/ITheme.cpp
     ui/themes/ITheme.h
     ui/themes/HintOverrideProxyStyle.cpp

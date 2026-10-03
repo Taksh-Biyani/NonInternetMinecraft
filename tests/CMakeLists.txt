@@ -110,5 +110,8 @@ ecm_add_test(LaunchCompleteness_test.cpp LINK_LIBRARIES Launcher_logic Qt${QT_VE
 ecm_add_test(OfflineName_test.cpp LINK_LIBRARIES Launcher_logic Qt${QT_VERSION_MAJOR}::Test
     TEST_NAME OfflineName)
 
+ecm_add_test(Accessibility_test.cpp LINK_LIBRARIES Launcher_logic Qt${QT_VERSION_MAJOR}::Test
+    TEST_NAME Accessibility)
+
 ecm_add_test(BundleWriter_test.cpp LINK_LIBRARIES Launcher_logic Qt${QT_VERSION_MAJOR}::Test
     TEST_NAME BundleWriter)
