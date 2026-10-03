@@ -179,6 +179,8 @@ set(NET_SOURCES
     offline/ExportJavaTask.h
     offline/ForgePrepTask.cpp
     offline/ForgePrepTask.h
+    offline/GuideLinks.cpp
+    offline/GuideLinks.h
     offline/BundleExportTask.cpp
     offline/BundleExportTask.h
     net/flame/FetchFlameAPIKey.cpp
@@ -1412,6 +1414,9 @@ install(TARGETS ${Launcher_Name}
     RUNTIME DESTINATION ${BINARY_DEST_DIR} COMPONENT Runtime
     FRAMEWORK DESTINATION ${FRAMEWORK_DEST_DIR} COMPONENT Runtime
 )
+
+# The bundled guide (spec §8.2): Guide.html sits next to the exe; GuideButton opens it.
+install(FILES "${CMAKE_SOURCE_DIR}/docs/guide/Guide.html" DESTINATION "${BINARY_DEST_DIR}")
 
 # Deploy PDBs
 if(CMAKE_CXX_LINKER_SUPPORTS_PDB)
