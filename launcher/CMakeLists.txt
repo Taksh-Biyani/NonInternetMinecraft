@@ -179,6 +179,8 @@ set(NET_SOURCES
     offline/ExportJavaTask.h
     offline/ForgePrepTask.cpp
     offline/ForgePrepTask.h
+    offline/BundleExportTask.cpp
+    offline/BundleExportTask.h
     net/flame/FetchFlameAPIKey.cpp
     net/flame/FetchFlameAPIKey.h
 )

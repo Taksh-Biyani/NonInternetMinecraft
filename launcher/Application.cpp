@@ -125,6 +125,7 @@
 #include <FileSystem.h>
 #include <LocalPeer.h>
 #include <PineconeNetworkCheck.h>
+#include "offline/BundleExportTask.h"
 #include "offline/BundleImportTask.h"
 #include "offline/OfflineMode.h"
 
@@ -899,6 +900,7 @@ Application::Application(int& argc, char** argv) : QApplication(argc, argv)
         qInfo() << "Offline mode setting:" << OfflineMode::settingToString(m_offlineMode->setting());
         // PineconeMC Offline: a crash during a bundle import can leave a staging folder behind.
         FS::deletePath(OfflineBundle::ImportTask::stagingRoot(QDir::currentPath()));
+        FS::deletePath(OfflineBundle::ExportTask::stagingRoot(QDir::currentPath()));
         m_settings->registerSetting("CloseAfterLaunch", false);
         m_settings->registerSetting("QuitAfterGameStop", false);
 
