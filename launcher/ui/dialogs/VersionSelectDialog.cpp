@@ -42,6 +42,7 @@
 #include <QtWidgets/QPushButton>
 #include <QtWidgets/QVBoxLayout>
 
+#include "ui/widgets/OfflineGuard.h"
 #include "ui/widgets/VersionSelectWidget.h"
 
 #include "BaseVersion.h"
@@ -90,6 +91,8 @@ VersionSelectDialog::VersionSelectDialog(BaseVersionList* vlist, QString title, 
     if (!cancelable) {
         m_buttonBox->button(QDialogButtonBox::Cancel)->setEnabled(false);
     }
+
+    OfflineGuard::disableWhileOffline(m_refreshButton);
 }
 
 void VersionSelectDialog::retranslate()

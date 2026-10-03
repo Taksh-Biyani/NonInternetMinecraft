@@ -40,6 +40,7 @@
 #include "ui/dialogs/CustomMessageBox.h"
 #include "ui/dialogs/ProgressDialog.h"
 #include "ui/java/VersionList.h"
+#include "ui/widgets/OfflineGuard.h"
 #include "ui/widgets/PageContainer.h"
 #include "ui/widgets/VersionSelectWidget.h"
 
@@ -204,6 +205,7 @@ InstallDialog::InstallDialog(const QString& uid, BaseInstance* instance, QWidget
     auto refreshButton = new QPushButton(tr("&Refresh"), this);
     connect(refreshButton, &QPushButton::clicked, this, [this] { pageCast(container->selectedPage())->loadList(); });
     refreshLayout->addWidget(refreshButton);
+    OfflineGuard::disableWhileOffline(refreshButton);
 
     auto recommendedCheckBox = new QCheckBox("Recommended", this);
     recommendedCheckBox->setCheckState(Qt::CheckState::Checked);

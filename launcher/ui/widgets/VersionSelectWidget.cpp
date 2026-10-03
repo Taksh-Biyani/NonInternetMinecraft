@@ -1,6 +1,7 @@
 #include "VersionSelectWidget.h"
 
 #include <QApplication>
+#include <QDebug>
 #include <QEvent>
 #include <QHeaderView>
 #include <QKeyEvent>
@@ -9,6 +10,7 @@
 
 #include "VersionProxyModel.h"
 
+#include "offline/OfflineMode.h"
 #include "ui/dialogs/CustomMessageBox.h"
 
 VersionSelectWidget::VersionSelectWidget(QWidget* parent) : QWidget(parent)
@@ -151,7 +153,14 @@ void VersionSelectWidget::onTaskSucceeded()
 
 void VersionSelectWidget::onTaskFailed(const QString& reason)
 {
-    CustomMessageBox::selectable(this, tr("Error"), tr("List update failed:\n%1").arg(reason), QMessageBox::Warning)->show();
+    if (OfflineMode::globallyOffline()) {
+        // Offline the list can only come from imported bundles: say so in the list instead of popping up an error.
+        qWarning() << "Version list unavailable offline:" << reason;
+        listView->setEmptyString(tr("Nothing is installed for this yet. Import an offline bundle that contains it (Import Bundle on "
+                                    "the toolbar)."));
+    } else {
+        CustomMessageBox::selectable(this, tr("Error"), tr("List update failed:\n%1").arg(reason), QMessageBox::Warning)->show();
+    }
     onTaskSucceeded();
 }
 

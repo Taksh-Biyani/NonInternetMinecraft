@@ -1215,6 +1215,8 @@ SET(LAUNCHER_SOURCES
     ui/widgets/ProgressWidget.cpp
     ui/widgets/OfflineNotice.h
     ui/widgets/OfflineNotice.cpp
+    ui/widgets/OfflineGuard.h
+    ui/widgets/OfflineGuard.cpp
     ui/widgets/GuideButton.h
     ui/widgets/GuideButton.cpp
     ui/widgets/WideBar.h
