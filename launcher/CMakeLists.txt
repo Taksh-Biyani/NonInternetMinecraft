@@ -1106,6 +1106,8 @@ SET(LAUNCHER_SOURCES
     ui/dialogs/CustomMessageBox.h
     ui/dialogs/FriendlyErrorDialog.cpp
     ui/dialogs/FriendlyErrorDialog.h
+    ui/dialogs/ExportBundleWizard.cpp
+    ui/dialogs/ExportBundleWizard.h
     ui/dialogs/ExportInstanceDialog.cpp
     ui/dialogs/ExportInstanceDialog.h
     ui/dialogs/ExportPackDialog.cpp
