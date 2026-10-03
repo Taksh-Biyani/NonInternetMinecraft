@@ -130,32 +130,41 @@ void ExportBundleWizard::buildWhatPage(BaseInstance* preselected)
     auto* vLayout = new QVBoxLayout(versions);
     auto* pickers = new QHBoxLayout;
     auto* mcColumn = new QVBoxLayout;
-    mcColumn->addWidget(new QLabel(tr("Minecraft version:")));
+    auto* mcLabel = new QLabel(tr("&Minecraft version:"));
+    mcColumn->addWidget(mcLabel);
     m_mcList = new VersionSelectWidget(versions);
     m_mcList->initialize(APPLICATION->metadataIndex()->get("net.minecraft").get());
     m_mcList->setFilter(BaseVersionList::TypeRole, Filters::regexp(QRegularExpression("(release)")));
     m_mcList->selectRecommended();
+    mcLabel->setBuddy(m_mcList->view());
+    m_mcList->view()->setAccessibleName(tr("Minecraft version"));
     mcColumn->addWidget(m_mcList);
     m_snapshots = new QCheckBox(tr("Show snapshots"));
     mcColumn->addWidget(m_snapshots);
     pickers->addLayout(mcColumn);
     auto* loaderColumn = new QVBoxLayout;
-    loaderColumn->addWidget(new QLabel(tr("Mod loader:")));
+    auto* loaderLabel = new QLabel(tr("Mod &loader:"));
+    loaderColumn->addWidget(loaderLabel);
     m_loader = new QComboBox;
+    loaderLabel->setBuddy(m_loader);
     m_loader->addItem(tr("None (vanilla)"), QString());
     for (const QString& uid : { "net.neoforged", "net.minecraftforge", "net.fabricmc.fabric-loader", "org.quiltmc.quilt-loader",
                                 "com.mumfrey.liteloader" })
         m_loader->addItem(loaderDisplayName(uid), uid);
     loaderColumn->addWidget(m_loader);
     m_loaderList = new VersionSelectWidget(versions);
+    m_loaderList->view()->setAccessibleName(tr("Mod loader version"));
     loaderColumn->addWidget(m_loaderList);
     pickers->addLayout(loaderColumn);
     vLayout->addLayout(pickers, 1);
     auto* addButton = new QPushButton(tr("Add to bundle"));
     addButton->setToolTip(tr("Adds the selected Minecraft version (and loader) to the list below. You can add several."));
     vLayout->addWidget(addButton, 0, Qt::AlignLeft);
-    vLayout->addWidget(new QLabel(tr("In this bundle:")));
+    auto* setsLabel = new QLabel(tr("In this &bundle:"));
+    vLayout->addWidget(setsLabel);
     m_sets = new QListWidget;
+    setsLabel->setBuddy(m_sets);
+    m_sets->setAccessibleName(tr("In this bundle"));
     m_sets->setMaximumHeight(90);
     vLayout->addWidget(m_sets);
     auto* removeButton = new QPushButton(tr("Remove"));
@@ -165,8 +174,10 @@ void ExportBundleWizard::buildWhatPage(BaseInstance* preselected)
     // Instance mode
     auto* instancePanel = new QWidget;
     auto* iLayout = new QVBoxLayout(instancePanel);
-    iLayout->addWidget(new QLabel(tr("Instance:")));
+    auto* instanceLabel = new QLabel(tr("&Instance:"));
+    iLayout->addWidget(instanceLabel);
     m_instance = new QComboBox;
+    instanceLabel->setBuddy(m_instance);
     auto* instances = APPLICATION->instances();
     for (int i = 0; i < instances->count(); ++i) {
         auto* inst = instances->at(i);
@@ -184,6 +195,7 @@ void ExportBundleWizard::buildWhatPage(BaseInstance* preselected)
     layout->addWidget(new QLabel(tr("Java: the version each Minecraft version needs is added automatically. "
                                     "Tick any other Java below to add it too:")));
     m_extraJava = new QListWidget;
+    m_extraJava->setAccessibleName(tr("Extra Java to include"));
     m_extraJava->setMaximumHeight(70);
     const QDir javaDir(QDir::current().absoluteFilePath(APPLICATION->javaPath()));
     for (const QString& folder : javaDir.entryList(QDir::Dirs | QDir::NoDotAndDotDot)) {
@@ -283,10 +295,13 @@ void ExportBundleWizard::buildReviewPage()
     m_summary = new QLabel;
     m_summary->setWordWrap(true);
     m_summary->setTextFormat(Qt::RichText);
+    m_summary->setTextInteractionFlags(Qt::TextSelectableByMouse | Qt::TextSelectableByKeyboard);
     layout->addWidget(m_summary, 1);
-    layout->addWidget(new QLabel(tr("Save the bundle as:")));
+    auto* destinationLabel = new QLabel(tr("&Save the bundle as:"));
+    layout->addWidget(destinationLabel);
     auto* row = new QHBoxLayout;
     m_destination = new QLineEdit;
+    destinationLabel->setBuddy(m_destination);
     auto* browse = new QPushButton(tr("Browse..."));
     row->addWidget(m_destination, 1);
     row->addWidget(browse);
@@ -344,11 +359,14 @@ void ExportBundleWizard::buildBuildPage()
     auto* layout = new QVBoxLayout(page);
     m_buildStatus = new QLabel;
     m_buildStatus->setWordWrap(true);
+    m_buildStatus->setTextInteractionFlags(Qt::TextSelectableByMouse | Qt::TextSelectableByKeyboard);
     layout->addWidget(m_buildStatus);
     m_buildProgress = new QProgressBar;
+    m_buildProgress->setAccessibleName(tr("Build progress"));
     layout->addWidget(m_buildProgress);
     m_buildResult = new QLabel;
     m_buildResult->setWordWrap(true);
+    m_buildResult->setTextInteractionFlags(Qt::TextSelectableByMouse | Qt::TextSelectableByKeyboard);
     layout->addWidget(m_buildResult);
     m_showInFolder = new QPushButton(tr("Show in folder"));
     m_showInFolder->hide();

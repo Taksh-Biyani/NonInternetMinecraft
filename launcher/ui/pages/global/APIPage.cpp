@@ -101,6 +101,7 @@ APIPage::APIPage(QWidget* parent) : QWidget(parent), ui(new Ui::APIPage)
            "Always offline: never uses the internet (for computers that are never connected).\n"
            "Always online: always downloads when needed (for the computer you make bundles on)."));
     ui->horizontalLayout_offlineMode->addWidget(new GuideButton(OfflineGuide::Section::OfflineMode, this));
+    ui->offlineStatusLabel->setAccessibleName(tr("Offline status"));
     ui->recheckNetworkButton->setToolTip(tr("Check again whether this computer can reach the internet."));
     connect(ui->recheckNetworkButton, &QPushButton::clicked, this, [] { APPLICATION->recheckNetwork(); });
     connect(APPLICATION->offlineMode(), &OfflineMode::offlineChanged, this, &APIPage::updateOfflineStatus);
