@@ -115,15 +115,6 @@ class ExportRulesTest : public QObject {
         QVERIFY(loaderDisplayName("org.lwjgl3").isEmpty());
     }
 
-    void storesCompressedFormats()
-    {
-        QVERIFY(storeUncompressed("libraries/a/b.jar"));
-        QVERIFY(storeUncompressed("assets/objects/ab/abcdef"));  // asset objects are mostly ogg/png
-        QVERIFY(storeUncompressed("instance/minecraft/resourcepacks/x.ZIP"));
-        QVERIFY(!storeUncompressed("meta/net.minecraft/26.3.json"));
-        QVERIFY(!storeUncompressed("java/rt/lib/modules"));
-    }
-
     void forcesWindowsNatives()
     {
         const RuntimeContext ctx = windowsX64Context();

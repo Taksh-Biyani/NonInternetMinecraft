@@ -65,11 +65,6 @@ bool ArchiveWriter::open()
         return false;
     }
 
-    if (m_storeOnly && m_format == "zip" && archive_write_set_format_option(m_archive, "zip", "compression", "store") != ARCHIVE_OK) {
-        qCritical() << "Failed to set store-only mode:" << m_filename << "-" << archive_error_string(m_archive);
-        return false;
-    }
-
     auto archiveNameW = m_filename.toStdWString();
     if (archive_write_open_filename_w(m_archive, archiveNameW.data()) != ARCHIVE_OK) {
         qCritical() << "Failed to open archive file:" << m_filename << "-" << archive_error_string(m_archive);

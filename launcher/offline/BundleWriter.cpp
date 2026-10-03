@@ -31,7 +31,6 @@
 #include "archive/ArchiveWriter.h"
 #include "offline/BundleMessages.h"
 #include "offline/BundlePaths.h"
-#include "offline/ExportRules.h"
 
 namespace OfflineBundle {
 
@@ -98,8 +97,6 @@ WriteResult writeBundle(const QString& zipPath,
     // 1. Hash every file for the manifest.
     manifest.files.clear();
     qint64 done = 0;
-    qint64 alreadyCompressedBytes = 0;
-    qint64 compressibleBytes = 0;
     for (const FileSet::Entry& e : files.entries()) {
         if (cancelled)
             return stopped();
@@ -113,16 +110,14 @@ WriteResult writeBundle(const QString& zipPath,
         } else {
             return failed(QString("can't read %1").arg(e.sourcePath));
         }
-        (storeUncompressed(e.bundlePath) ? alreadyCompressedBytes : compressibleBytes) += entry.size;
         manifest.files.append(entry);
         report(tr("Checking files"), ++done, total);
     }
 
-    // 2. Write the files, then the manifest. libarchive fixes the zip compression method for the whole archive when
-    // it's opened, so store everything when most of the bytes are already compressed (jars, assets) and deflate otherwise.
+    // 2. Write the files, then the manifest. Every entry is deflated: libarchive takes the compression option only
+    // before the first entry, and the Java runtime and metadata compress well.
     {
         MMCZip::ArchiveWriter zip(part);
-        zip.setStoreOnly(alreadyCompressedBytes >= compressibleBytes);
         if (!zip.open())
             return failed(QString("can't create %1").arg(part));
         done = 0;

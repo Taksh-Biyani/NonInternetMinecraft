@@ -60,9 +60,6 @@ QString suggestedFileName(const QList<ComponentEntry>& components);
 // "<instance name>-offline.zip", with characters Windows forbids in file names replaced by '_'.
 QString suggestedInstanceFileName(const QString& instanceName);
 
-// Store already-compressed files (jar, zip, png, ogg and asset objects) instead of deflating them.
-bool storeUncompressed(const QString& bundlePath);
-
 // The runtime context every export uses, whatever PC it runs on: Windows, 64-bit Java (spec §5.3.2).
 RuntimeContext windowsX64Context();
 

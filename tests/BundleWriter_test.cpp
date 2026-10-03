@@ -148,15 +148,15 @@ class BundleWriterTest : public QObject {
         QVERIFY(!QFile::exists(zip + ".part"));
     }
 
-    void jarsAreStored()
+    void compressesTheZip()
     {
         QTemporaryDir source, out;
         makeSource(source.path());
         const QString zip = out.filePath("bundle.zip");
         std::atomic_bool cancelled = false;
         QVERIFY(writeBundle(zip, versionsManifest(), sourceFiles(source.path()), {}, cancelled).ok);
-        // The 100000-byte jar of repeated 'j' would deflate to almost nothing; stored, the zip stays bigger than it.
-        QVERIFY(QFileInfo(zip).size() > 100000);
+        // The 100000-byte jar of repeated 'j' deflates to almost nothing.
+        QVERIFY(QFileInfo(zip).size() < 50000);
     }
 };
 

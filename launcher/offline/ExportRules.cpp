@@ -148,18 +148,6 @@ QString suggestedInstanceFileName(const QString& instanceName)
     return safeFileName(instanceName + "-offline") + ".zip";
 }
 
-bool storeUncompressed(const QString& bundlePath)
-{
-    if (bundlePath.startsWith("assets/objects/"))
-        return true;
-    static const QStringList s_compressed{ ".jar", ".zip", ".png", ".ogg", ".gz", ".xz", ".7z", ".mrpack" };
-    for (const QString& ext : s_compressed) {
-        if (bundlePath.endsWith(ext, Qt::CaseInsensitive))
-            return true;
-    }
-    return false;
-}
-
 RuntimeContext windowsX64Context()
 {
     RuntimeContext ctx;
