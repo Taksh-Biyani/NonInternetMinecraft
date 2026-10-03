@@ -26,6 +26,7 @@
 #include <QPlainTextEdit>
 #include <QPushButton>
 #include <QStyle>
+#include <QTextDocument>
 #include <QTextDocumentFragment>
 #include <QToolButton>
 #include <QVBoxLayout>
@@ -73,7 +74,9 @@ FriendlyErrorDialog::FriendlyErrorDialog(QWidget* parent,
 
         // A plain button outside the button box, so copying never closes the dialog.
         auto* copy = new QPushButton(tr("Copy details"), this);
-        connect(copy, &QPushButton::clicked, this, [message, details] { QApplication::clipboard()->setText(message + "\n\n" + details); });
+        // Copy plain text: the message may be HTML (e.g. the missing-files list).
+        const QString plainMessage = Qt::mightBeRichText(message) ? QTextDocumentFragment::fromHtml(message).toPlainText() : message;
+        connect(copy, &QPushButton::clicked, this, [plainMessage, details] { QApplication::clipboard()->setText(plainMessage + "\n\n" + details); });
         bottom->addWidget(copy);
     }
     if (guide) {
