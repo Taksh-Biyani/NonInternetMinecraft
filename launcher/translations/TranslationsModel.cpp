@@ -49,6 +49,7 @@
 #include "POTranslator.h"
 
 #include "Application.h"
+#include "offline/OfflineMode.h"
 #include "settings/SettingsObject.h"
 
 static constexpr QLatin1String g_defaultLangCode("en_US");
@@ -550,6 +551,11 @@ QString TranslationsModel::selectedLanguage() const
 
 void TranslationsModel::downloadIndex()
 {
+    // Offline the download can only fail; the network check calls downloadIndex() again once the internet is reachable.
+    if (OfflineMode::globallyOffline()) {
+        qDebug() << "Offline: not downloading the translations index";
+        return;
+    }
     if (d->m_indexJob || d->m_downloadJob) {
         return;
     }
@@ -584,6 +590,11 @@ void TranslationsModel::updateLanguage(const QString& key)
 
 void TranslationsModel::downloadTranslation(const QString& key)
 {
+    // Offline: keep using the translation files already in translations/.
+    if (OfflineMode::globallyOffline()) {
+        qDebug() << "Offline: not downloading the translation" << key;
+        return;
+    }
     if (d->m_downloadJob) {
         d->m_nextDownload = key;
         return;
