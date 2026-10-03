@@ -183,6 +183,8 @@ set(NET_SOURCES
     offline/GuideLinks.h
     offline/LaunchCompleteness.cpp
     offline/LaunchCompleteness.h
+    offline/OfflineName.cpp
+    offline/OfflineName.h
     offline/BundleExportTask.cpp
     offline/BundleExportTask.h
     net/flame/FetchFlameAPIKey.cpp

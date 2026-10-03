@@ -107,5 +107,8 @@ target_compile_definitions(GuideLinks PRIVATE PINECONE_GUIDE_HTML="${CMAKE_SOURC
 ecm_add_test(LaunchCompleteness_test.cpp LINK_LIBRARIES Launcher_logic Qt${QT_VERSION_MAJOR}::Test
     TEST_NAME LaunchCompleteness)
 
+ecm_add_test(OfflineName_test.cpp LINK_LIBRARIES Launcher_logic Qt${QT_VERSION_MAJOR}::Test
+    TEST_NAME OfflineName)
+
 ecm_add_test(BundleWriter_test.cpp LINK_LIBRARIES Launcher_logic Qt${QT_VERSION_MAJOR}::Test
     TEST_NAME BundleWriter)
