@@ -51,6 +51,7 @@
    </attribute>
    <addaction name="actionAddInstance"/>
    <addaction name="actionImportBundle"/>
+   <addaction name="actionExportBundle"/>
    <addaction name="actionFoldersButton"/>
    <addaction name="actionSettings"/>
    <addaction name="actionHelpButton"/>
@@ -312,7 +313,7 @@
     <iconset theme="export"/>
    </property>
    <property name="text">
-    <string>E&amp;xport Offline Bundle...</string>
+    <string>E&amp;xport Bundle...</string>
    </property>
    <property name="toolTip">
     <string>Make one file with Minecraft versions, mod loaders and Java for a computer without internet.</string>
