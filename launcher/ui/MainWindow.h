@@ -86,6 +86,10 @@ class MainWindow : public QMainWindow {
 
     // PineconeMC Offline: preview, import and report one offline bundle (spec §3.2).
     void importBundle(const QString& path);
+    // Asks for a bundle file (starting on a USB stick when one is plugged in) and imports it.
+    void promptImportBundle();
+    // Opens the Add Instance dialog.
+    void startAddInstance() { addInstance(); }
    signals:
     void isClosing();
 

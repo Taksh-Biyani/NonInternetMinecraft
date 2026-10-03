@@ -53,6 +53,7 @@
 #include "offline/OfflineMode.h"
 #include "offline/RemovableDrives.h"
 #include "ui/dialogs/FriendlyErrorDialog.h"
+#include "ui/widgets/GuideButton.h"
 #include "ui/widgets/VersionSelectWidget.h"
 
 using namespace OfflineBundle;
@@ -98,6 +99,8 @@ ExportBundleWizard::ExportBundleWizard(QWidget* parent, BaseInstance* instance) 
     setWindowTitle(tr("Export offline bundle"));
     setWizardStyle(QWizard::ModernStyle);
     setOption(QWizard::NoBackButtonOnLastPage);
+    setOption(QWizard::HaveHelpButton, true);
+    connect(this, &QWizard::helpRequested, this, [this] { GuideButton::openSection(OfflineGuide::Section::MakeBundle, this); });
     setMinimumSize(720, 560);
     buildWhatPage(instance);
     buildReviewPage();
@@ -409,7 +412,7 @@ void ExportBundleWizard::startBuild()
             QWizard::reject();
             return;
         }
-        FriendlyErrorDialog::show(this, tr("Couldn't make the bundle"), reason, task->errorDetails());
+        FriendlyErrorDialog::show(this, tr("Couldn't make the bundle"), reason, task->errorDetails(), OfflineGuide::Section::MakeBundle);
     });
     connect(task.get(), &Task::aborted, this, [this, page] {
         m_buildResult->setText(tr("Cancelled. Nothing was saved."));

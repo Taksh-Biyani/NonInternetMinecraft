@@ -1213,6 +1213,8 @@ SET(LAUNCHER_SOURCES
     ui/widgets/ProgressWidget.cpp
     ui/widgets/OfflineRefreshButton.h
     ui/widgets/OfflineRefreshButton.cpp
+    ui/widgets/GuideButton.h
+    ui/widgets/GuideButton.cpp
     ui/widgets/WideBar.h
     ui/widgets/WideBar.cpp
     ui/widgets/AppearanceWidget.h

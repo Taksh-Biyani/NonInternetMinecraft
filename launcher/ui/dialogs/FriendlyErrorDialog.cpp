@@ -26,13 +26,21 @@
 #include <QPlainTextEdit>
 #include <QPushButton>
 #include <QStyle>
+#include <QTextDocumentFragment>
 #include <QToolButton>
 #include <QVBoxLayout>
 
-FriendlyErrorDialog::FriendlyErrorDialog(QWidget* parent, const QString& title, const QString& message, const QString& details)
+#include "ui/widgets/GuideButton.h"
+
+FriendlyErrorDialog::FriendlyErrorDialog(QWidget* parent,
+                                         const QString& title,
+                                         const QString& message,
+                                         const QString& details,
+                                         std::optional<OfflineGuide::Section> guide)
     : QDialog(parent)
 {
     setWindowTitle(title);
+    setAccessibleDescription(QTextDocumentFragment::fromHtml(message).toPlainText());  // screen readers read it when the dialog opens
     auto* layout = new QVBoxLayout(this);
 
     auto* top = new QHBoxLayout();
@@ -41,7 +49,7 @@ FriendlyErrorDialog::FriendlyErrorDialog(QWidget* parent, const QString& title, 
     icon->setAlignment(Qt::AlignTop);
     auto* text = new QLabel(message, this);
     text->setWordWrap(true);
-    text->setTextInteractionFlags(Qt::TextSelectableByMouse);
+    text->setTextInteractionFlags(Qt::TextSelectableByMouse | Qt::TextSelectableByKeyboard);
     top->addWidget(icon);
     top->addWidget(text, 1);
     layout->addLayout(top);
@@ -68,15 +76,34 @@ FriendlyErrorDialog::FriendlyErrorDialog(QWidget* parent, const QString& title, 
         connect(copy, &QPushButton::clicked, this, [message, details] { QApplication::clipboard()->setText(message + "\n\n" + details); });
         bottom->addWidget(copy);
     }
-    auto* buttons = new QDialogButtonBox(QDialogButtonBox::Ok, this);
-    connect(buttons, &QDialogButtonBox::accepted, this, &QDialog::accept);
-    bottom->addWidget(buttons, 1);
+    if (guide) {
+        auto* help = new QPushButton(tr("Open guide"), this);
+        const auto section = *guide;
+        connect(help, &QPushButton::clicked, this, [this, section] { GuideButton::openSection(section, this); });
+        bottom->addWidget(help);
+    }
+    m_buttons = new QDialogButtonBox(QDialogButtonBox::Ok, this);
+    connect(m_buttons, &QDialogButtonBox::accepted, this, &QDialog::accept);
+    bottom->addWidget(m_buttons, 1);
     layout->addLayout(bottom);
     setMinimumWidth(460);
 }
 
-void FriendlyErrorDialog::show(QWidget* parent, const QString& title, const QString& message, const QString& details)
+QPushButton* FriendlyErrorDialog::addActionButton(const QString& text)
 {
-    FriendlyErrorDialog dialog(parent, title, message, details);
+    auto* button = m_buttons->addButton(text, QDialogButtonBox::ActionRole);
+    connect(button, &QPushButton::clicked, this, [this] { done(ActionResult); });
+    button->setDefault(true);
+    button->setFocus();
+    return button;
+}
+
+void FriendlyErrorDialog::show(QWidget* parent,
+                               const QString& title,
+                               const QString& message,
+                               const QString& details,
+                               std::optional<OfflineGuide::Section> guide)
+{
+    FriendlyErrorDialog dialog(parent, title, message, details, guide);
     dialog.exec();
 }

@@ -19,12 +19,36 @@
 #pragma once
 
 #include <QDialog>
+#include <optional>
 
-// A plain-language error (spec §7.1): the message, a collapsible "Details" section and a "Copy details" button.
+#include "offline/GuideLinks.h"
+
+class QDialogButtonBox;
+class QPushButton;
+
+// A plain-language error (spec §7.1): the message, a collapsible "Details" section and a "Copy details" button,
+// optionally an "Open guide" button and one action button (e.g. "Import Bundle...").
 class FriendlyErrorDialog : public QDialog {
     Q_OBJECT
    public:
-    FriendlyErrorDialog(QWidget* parent, const QString& title, const QString& message, const QString& details);
+    // The dialog's result code when the button from addActionButton() was clicked.
+    static constexpr int ActionResult = 2;
 
-    static void show(QWidget* parent, const QString& title, const QString& message, const QString& details);
+    FriendlyErrorDialog(QWidget* parent,
+                        const QString& title,
+                        const QString& message,
+                        const QString& details,
+                        std::optional<OfflineGuide::Section> guide = std::nullopt);
+
+    // Adds a default button that closes the dialog with ActionResult.
+    QPushButton* addActionButton(const QString& text);
+
+    static void show(QWidget* parent,
+                     const QString& title,
+                     const QString& message,
+                     const QString& details,
+                     std::optional<OfflineGuide::Section> guide = std::nullopt);
+
+   private:
+    QDialogButtonBox* m_buttons = nullptr;
 };

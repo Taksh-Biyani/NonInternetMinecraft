@@ -53,6 +53,7 @@
 
 #include "settings/SettingsObject.h"
 
+#include "ui/widgets/GuideButton.h"
 #include "ui/widgets/IconLabel.h"
 
 #include "Application.h"
@@ -244,6 +245,12 @@ void PageContainer::help()
     if (m_currentPage) {
         QString pageId = m_currentPage->helpPage();
         if (pageId.isEmpty()) {
+            return;
+        }
+        // PineconeMC Offline pages point at the bundled guide: "offline:<anchor>".
+        if (pageId.startsWith("offline:")) {
+            if (auto section = OfflineGuide::sectionFromAnchor(pageId.mid(8)))
+                GuideButton::openSection(*section, this);
             return;
         }
         DesktopServices::openUrl(QUrl(BuildConfig.HELP_URL.arg(pageId)));

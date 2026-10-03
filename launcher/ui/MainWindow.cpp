@@ -123,6 +123,7 @@
 #include "ui/instanceview/InstanceView.h"
 #include "ui/themes/ITheme.h"
 #include "ui/themes/ThemeManager.h"
+#include "ui/widgets/GuideButton.h"
 #include "ui/widgets/LabeledToolButton.h"
 
 #include "minecraft/PackProfile.h"
@@ -206,6 +207,14 @@ MainWindow::MainWindow(QWidget* parent) : QMainWindow(parent), ui(new Ui::MainWi
 
     // set the menu for the folders help, accounts, and export tool buttons
     {
+        auto* guideAction = new QAction(QIcon::fromTheme("help"), tr("Offline &Guide"), this);
+        guideAction->setToolTip(tr("Open the guide that came with the launcher (works without internet)"));
+        guideAction->setShortcut(QKeySequence::HelpContents);  // F1
+        guideAction->setShortcutContext(Qt::ApplicationShortcut);
+        connect(guideAction, &QAction::triggered, this, [this] { GuideButton::openSection(OfflineGuide::Section::Start, this); });
+        ui->helpMenu->insertAction(ui->helpMenu->actions().value(0), guideAction);
+        addAction(guideAction);  // F1 works with the menu bar hidden too
+
         auto foldersMenuButton = dynamic_cast<QToolButton*>(ui->mainToolBar->widgetForAction(ui->actionFoldersButton));
         ui->actionFoldersButton->setMenu(ui->foldersMenu);
         foldersMenuButton->setPopupMode(QToolButton::InstantPopup);
@@ -403,6 +412,8 @@ MainWindow::MainWindow(QWidget* parent) : QMainWindow(parent), ui(new Ui::MainWi
     m_offlineBadge->setToolTip(tr("The launcher is offline: it won't download anything and uses only files from imported offline bundles.\n"
                                   "Playing on LAN or servers isn't affected. Click to change the offline mode setting."));
     statusBar()->addPermanentWidget(m_offlineBadge, 0);
+    m_offlineBadge->setAccessibleName(tr("Offline"));
+    m_offlineBadge->setAccessibleDescription(m_offlineBadge->toolTip());
     connect(m_offlineBadge, &QToolButton::clicked, this, [this] { APPLICATION->ShowGlobalSettings(this, "apis"); });
     m_offlineBadge->setVisible(APPLICATION->offlineMode()->isOffline());
     connect(APPLICATION->offlineMode(), &OfflineMode::offlineChanged, m_offlineBadge, &QToolButton::setVisible);
@@ -968,6 +979,11 @@ void MainWindow::on_actionAddInstance_triggered()
 
 void MainWindow::on_actionImportBundle_triggered()
 {
+    promptImportBundle();
+}
+
+void MainWindow::promptImportBundle()
+{
     QString startFolder = OfflineBundle::firstRemovableDriveRoot();
     if (startFolder.isEmpty())
         startFolder = QStandardPaths::writableLocation(QStandardPaths::DownloadLocation);
@@ -981,7 +997,7 @@ void MainWindow::importBundle(const QString& path)
     const QString errorTitle = tr("Couldn't import the bundle");
     const auto read = OfflineBundle::readManifestFromZip(path);
     if (!read.manifest) {
-        FriendlyErrorDialog::show(this, errorTitle, read.message, read.details);
+        FriendlyErrorDialog::show(this, errorTitle, read.message, read.details, OfflineGuide::Section::ImportBundle);
         return;
     }
     const OfflineBundle::Manifest& manifest = *read.manifest;
@@ -1002,8 +1018,13 @@ void MainWindow::importBundle(const QString& path)
                         QMessageBox::NoButton, this);
     auto* importButton = preview.addButton(tr("Import"), QMessageBox::AcceptRole);
     preview.addButton(QMessageBox::Cancel);
+    auto* previewHelp = preview.addButton(QMessageBox::Help);
     preview.setDefaultButton(importButton);
-    preview.exec();
+    do {
+        preview.exec();
+        if (preview.clickedButton() == previewHelp)
+            GuideButton::openSection(OfflineGuide::Section::ImportBundle, this);
+    } while (preview.clickedButton() == previewHelp);
     if (preview.clickedButton() != importButton)
         return;
 
@@ -1016,7 +1037,7 @@ void MainWindow::importBundle(const QString& path)
     }
     if (!task.wasSuccessful()) {
         if (!task.failReason().isEmpty())
-            FriendlyErrorDialog::show(this, errorTitle, task.failReason(), task.errorDetails());
+            FriendlyErrorDialog::show(this, errorTitle, task.failReason(), task.errorDetails(), OfflineGuide::Section::ImportBundle);
         return;
     }
 
@@ -1052,7 +1073,12 @@ void MainWindow::importBundle(const QString& path)
     QAbstractButton* actionButton = newInstanceId.isEmpty() ? result.addButton(tr("Create instance"), QMessageBox::AcceptRole)
                                                             : result.addButton(tr("Play"), QMessageBox::AcceptRole);
     result.addButton(QMessageBox::Close);
-    result.exec();
+    auto* resultHelp = result.addButton(QMessageBox::Help);
+    do {
+        result.exec();
+        if (result.clickedButton() == resultHelp)
+            GuideButton::openSection(OfflineGuide::Section::ImportBundle, this);
+    } while (result.clickedButton() == resultHelp);
     if (result.clickedButton() != actionButton)
         return;
     if (newInstanceId.isEmpty()) {
