@@ -50,6 +50,7 @@
 #include "QObjectPtr.h"
 
 #include "minecraft/auth/MinecraftAccount.h"
+#include "tasks/Task.h"
 
 class PineconeNetworkCheck;
 class OfflineMode;
@@ -243,6 +244,7 @@ class Application : public QApplication {
     bool handleDataMigration(const QString& currentData, const QString& oldData, const QString& name, const QString& configFile) const;
     bool createSetupWizard();
     void performMainStartupAction();
+    void runCommandLineExport();
 
     // sets the fatal error message and m_status to Failed.
     void showFatalErrorMessage(const QString& title, const QString& content);
@@ -320,6 +322,12 @@ class Application : public QApplication {
     QString m_detectedGLFWPath;
     QString m_detectedOpenALPath;
     QString m_instanceIdToLaunch;
+    QString m_exportBundlePath;
+    QStringList m_exportSets;
+    QString m_exportInstance;
+    bool m_exportWorlds = false;
+    QStringList m_exportJava;
+    Task::Ptr m_exportTask;
     QString m_serverToJoin;
     QString m_worldToJoin;
     QString m_profileToUse;

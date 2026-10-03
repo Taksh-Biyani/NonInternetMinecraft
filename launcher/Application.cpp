@@ -127,6 +127,7 @@
 #include <PineconeNetworkCheck.h>
 #include "offline/BundleExportTask.h"
 #include "offline/BundleImportTask.h"
+#include "offline/ExportRules.h"
 #include "offline/OfflineMode.h"
 
 #include <stdlib.h>
@@ -324,7 +325,14 @@ Application::Application(int& argc, char** argv) : QApplication(argc, argv)
           { "alive", "Write a small '" + liveCheckFile + "' file after the launcher starts" },
           { "show-window", "Show the main launcher window (useful in combination with --launch)" },
           { { "I", "import" }, "Import instance or resource from specified local path or URL", "url" },
-          { "show", "Opens the window for the specified instance (by instance ID)", "show" } });
+          { "show", "Opens the window for the specified instance (by instance ID)", "show" },
+          { "export-bundle", "Build an offline bundle at the given .zip path, then quit (with --export-set or --export-instance)", "zip" },
+          { "export-set",
+            "A Minecraft version with an optional loader for --export-bundle, e.g. \"26.3,net.neoforged=26.3.0.33-beta\" (repeatable)",
+            "set" },
+          { "export-instance", "The instance (by ID) to put into the --export-bundle bundle", "instance" },
+          { "export-worlds", "Include the instance's worlds (with --export-instance)" },
+          { "export-java", "An extra folder under java/ to include in the --export-bundle bundle (repeatable)", "folder" } });
     // Has to be positional for some OS to handle that properly
     parser.addPositionalArgument("URL", "Import the resource(s) at the given URL(s) (same as -I / --import)", "[URL...]");
 
@@ -342,6 +350,11 @@ Application::Application(int& argc, char** argv) : QApplication(argc, argv)
         m_offlineName = parser.value("offline");
     }
     m_liveCheck = parser.isSet("alive");
+    m_exportBundlePath = parser.value("export-bundle");
+    m_exportSets = parser.values("export-set");
+    m_exportInstance = parser.value("export-instance");
+    m_exportWorlds = parser.isSet("export-worlds");
+    m_exportJava = parser.values("export-java");
 
     m_instanceIdToShowWindowOf = parser.value("show");
     m_showMainWindow = parser.isSet("show-window");
@@ -1359,9 +1372,61 @@ void Application::setupWizardFinished(int status)
     performMainStartupAction();
 }
 
+void Application::runCommandLineExport()
+{
+    // "Auto" offline mode counts as offline until the startup network check has answered, and the export refuses to run
+    // offline, so wait for the check first.
+    if (m_offlineMode->awaitingCheck()) {
+        connect(m_offlineMode.get(), &OfflineMode::checkStateChanged, this, &Application::runCommandLineExport, Qt::SingleShotConnection);
+        return;
+    }
+    // exit() does nothing before the event loop runs, and this can fail right away: leave through the event loop.
+    auto quit = [this](int code) { QMetaObject::invokeMethod(this, [this, code] { exit(code); }, Qt::QueuedConnection); };
+    OfflineBundle::ExportRequest request;
+    request.outputPath = QFileInfo(m_exportBundlePath).absoluteFilePath();
+    request.extraJavaFolders = m_exportJava;
+    if (!m_exportInstance.isEmpty()) {
+        request.kind = OfflineBundle::Kind::Instance;
+        request.instanceId = m_exportInstance;
+        request.includeWorlds = m_exportWorlds;
+    } else {
+        for (const QString& text : m_exportSets) {
+            const auto set = OfflineBundle::parseExportSet(text);
+            if (!set) {
+                qCritical() << "Export: can't read --export-set" << text;
+                quit(2);
+                return;
+            }
+            request.sets.append(*set);
+        }
+        if (request.sets.isEmpty()) {
+            qCritical() << "Export: give --export-set or --export-instance";
+            quit(2);
+            return;
+        }
+    }
+    auto task = makeShared<OfflineBundle::ExportTask>(request);
+    m_exportTask = task;
+    connect(task.get(), &Task::status, this, [](const QString& status) { qInfo() << "Export:" << status; });
+    connect(task.get(), &Task::succeeded, this, [this, task, quit] {
+        qInfo() << "Export: done," << task->bundleSize() << "bytes written to" << m_exportBundlePath;
+        quit(0);
+    });
+    connect(task.get(), &Task::failed, this, [task, quit](const QString& reason) {
+        qCritical() << "Export failed:" << reason << "|" << task->errorDetails();
+        quit(1);
+    });
+    connect(task.get(), &Task::aborted, this, [quit] { quit(1); });
+    task->start();
+}
+
 void Application::performMainStartupAction()
 {
     m_status = Application::Initialized;
+    if (!m_exportBundlePath.isEmpty()) {
+        runCommandLineExport();
+        return;
+    }
     if (!m_instanceIdToLaunch.isEmpty()) {
         auto inst = instances()->getInstanceById(m_instanceIdToLaunch);
         if (inst) {
