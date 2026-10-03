@@ -72,6 +72,9 @@
 #include "ui/setupwizard/JavaWizardPage.h"
 #include "ui/setupwizard/LanguageWizardPage.h"
 #include "ui/setupwizard/LoginWizardPage.h"
+#include "ui/setupwizard/OfflineAccountWizardPage.h"
+#include "ui/setupwizard/OfflineGetStartedWizardPage.h"
+#include "ui/setupwizard/OfflineWelcomeWizardPage.h"
 #include "ui/setupwizard/PasteWizardPage.h"
 #include "ui/setupwizard/SetupWizard.h"
 #include "ui/setupwizard/ThemeWizardPage.h"
@@ -86,6 +89,7 @@
 
 #include <iostream>
 #include <mutex>
+#include <utility>
 
 #include <QAccessible>
 #include <QCommandLineParser>
@@ -100,6 +104,7 @@
 #include <QStringList>
 #include <QStringLiteral>
 #include <QStyleFactory>
+#include <QTimer>
 #include <QTranslator>
 #include <QWindow>
 
@@ -913,6 +918,7 @@ Application::Application(int& argc, char** argv) : QApplication(argc, argv)
 
         // PineconeMC Offline: "Auto", "AlwaysOffline" or "AlwaysOnline"
         m_settings->registerSetting("OfflineMode", "Auto");
+        m_settings->registerSetting("FirstRunWelcomeDone", false);
         m_offlineMode = std::make_unique<OfflineMode>();
         m_offlineMode->setSetting(OfflineMode::settingFromString(m_settings->get("OfflineMode").toString()));
         qInfo() << "Offline mode setting:" << OfflineMode::settingToString(m_offlineMode->setting());
@@ -1280,8 +1286,12 @@ bool Application::createSetupWizard()
     bool validWidgets = m_themeManager->isValidApplicationTheme(settings()->get("ApplicationTheme").toString());
     bool validIcons = m_themeManager->isValidIconTheme(settings()->get("IconTheme").toString());
     bool login = !m_accounts->anyAccountIsValid() && capabilities() & Application::SupportsMSA;
+    // PineconeMC Offline first run (spec §8.1): nothing set up yet, and not started for a command-line job.
+    bool welcome = !settings()->get("FirstRunWelcomeDone").toBool() && m_accounts->count() == 0 && m_instances->count() == 0 &&
+                   m_instanceIdToLaunch.isEmpty() && m_exportBundlePath.isEmpty();
     bool themeInterventionRequired = !validWidgets || !validIcons;
-    bool wizardRequired = javaRequired || languageRequired || pasteInterventionRequired || themeInterventionRequired || askjava || login;
+    bool wizardRequired =
+        javaRequired || languageRequired || pasteInterventionRequired || themeInterventionRequired || askjava || login || welcome;
     if (wizardRequired) {
         // set default theme after going into theme wizard
         if (!validIcons)
@@ -1304,6 +1314,11 @@ bool Application::createSetupWizard()
             m_setupWizard->addPage(new LanguageWizardPage(m_setupWizard));
         }
 
+        if (welcome) {
+            m_setupWizard->addPage(new OfflineWelcomeWizardPage(m_setupWizard));
+            m_setupWizard->addPage(new OfflineAccountWizardPage(m_setupWizard));
+        }
+
         if (javaRequired) {
             m_setupWizard->addPage(new JavaWizardPage(m_setupWizard));
         } else if (askjava) {
@@ -1320,6 +1335,10 @@ bool Application::createSetupWizard()
 
         if (login) {
             m_setupWizard->addPage(new LoginWizardPage(m_setupWizard));
+        }
+        if (welcome) {
+            m_getStartedPage = new OfflineGetStartedWizardPage(m_setupWizard);
+            m_setupWizard->addPage(m_getStartedPage);
         }
         connect(m_setupWizard, &QDialog::finished, this, &Application::setupWizardFinished);
         m_setupWizard->show();
@@ -1375,6 +1394,12 @@ bool Application::event(QEvent* event)
 void Application::setupWizardFinished(int status)
 {
     qDebug() << "Wizard result =" << status;
+    if (m_getStartedPage) {
+        // Shown once, also when closed early.
+        settings()->set("FirstRunWelcomeDone", true);
+        m_firstRunAction = static_cast<int>(m_getStartedPage->chosenAction());
+        m_getStartedPage = nullptr;
+    }
     performMainStartupAction();
 }
 
@@ -1476,6 +1501,17 @@ void Application::performMainStartupAction()
         // normal main window
         showMainWindow(false);
         qDebug() << "<> Main window shown.";
+    }
+
+    // The first-run "Get started" choice, once the main window is up.
+    if (m_mainWindow && m_firstRunAction != 0) {
+        const auto action = static_cast<OfflineGetStartedWizardPage::Action>(std::exchange(m_firstRunAction, 0));
+        QTimer::singleShot(0, m_mainWindow, [this, action] {
+            if (action == OfflineGetStartedWizardPage::Action::ImportBundle)
+                m_mainWindow->promptImportBundle();
+            else if (action == OfflineGetStartedWizardPage::Action::CreateInstance)
+                m_mainWindow->startAddInstance();
+        });
     }
 
     // initialize the updater

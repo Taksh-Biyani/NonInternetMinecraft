@@ -314,6 +314,8 @@ class Application : public QApplication {
     LocalPeer* m_peerInstance = nullptr;
 
     SetupWizard* m_setupWizard = nullptr;
+    class OfflineGetStartedWizardPage* m_getStartedPage = nullptr;
+    int m_firstRunAction = 0;  // OfflineGetStartedWizardPage::Action
 
     std::unique_ptr<PineconeNetworkCheck> m_pineconeNetworkCheck;
     std::unique_ptr<OfflineMode> m_offlineMode;

@@ -917,6 +917,12 @@ SET(LAUNCHER_SOURCES
     ui/setupwizard/AutoJavaWizardPage.h
     ui/setupwizard/LoginWizardPage.cpp
     ui/setupwizard/LoginWizardPage.h
+    ui/setupwizard/OfflineWelcomeWizardPage.cpp
+    ui/setupwizard/OfflineWelcomeWizardPage.h
+    ui/setupwizard/OfflineAccountWizardPage.cpp
+    ui/setupwizard/OfflineAccountWizardPage.h
+    ui/setupwizard/OfflineGetStartedWizardPage.cpp
+    ui/setupwizard/OfflineGetStartedWizardPage.h
 
     # GUI - themes
     ui/themes/FusionTheme.cpp
