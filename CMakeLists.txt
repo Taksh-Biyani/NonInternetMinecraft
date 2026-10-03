@@ -499,6 +499,7 @@ add_subdirectory(libraries/libnbtplusplus)
 add_subdirectory(libraries/launcher) # java based launcher part for Minecraft
 add_subdirectory(libraries/javacheck) # java compatibility checker
 add_subdirectory(libraries/offline-auth) # PineconeMC Offline: local sign-in server agent + authlib-injector (LAN without internet)
+add_subdirectory(libraries/forge-prep) # PineconeMC Offline: runs Forge/NeoForge installer processors when exporting a bundle
 
 add_subdirectory(libraries/rainbow) # Qt extension for colors
 add_subdirectory(libraries/LocalPeer) # fork of a library from Qt solutions
