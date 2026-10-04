@@ -1,76 +1,60 @@
-> [!CAUTION]
-> **There's now malicious links in the wild that disguise themselves as this project.**
->
-> Make sure that you download PineconeMC from `elyprismlauncher.github.io` and/or `pineconemc.ru`.
+# PineconeMC Offline
 
-<p align="center">
-<picture>
-  <source media="(prefers-color-scheme: dark)" srcset="/program_info/ru.pineconemc.launcher.logo-darkmode.svg">
-  <source media="(prefers-color-scheme: light)" srcset="/program_info/ru.pineconemc.launcher.logo.svg">
-  <img alt="ru.pineconemc.launcher" src="/program_info/ru.pineconemc.launcher.logo.svg" width="40%">
-</picture>
-</p>
+A portable Minecraft: Java Edition launcher for Windows computers **without internet**.
 
-<p align="center">
-  This <b>fork</b> of Prism Launcher adds integrated support for Ely.by accounts (MSA accounts can still be used)<br />
-  <br />This is <b>not</b> endorsed by Prism Launcher or Ely.by.
-</p>
+Everything new (a Minecraft version, Forge, NeoForge, Fabric or Quilt, a modpack, Java) arrives as **one `.zip` "offline bundle"**, carried on a USB stick from a computer that has internet and installed with **Import Bundle**. The same launcher, run on the online computer, makes those bundles with **Export Bundle**.
 
-## Why this fork?
+With internet it behaves like a normal launcher: Microsoft and Ely.by sign-in, Modrinth and CurseForge browsing, version refresh.
 
-There are already quite a few forks out in the wild that add Ely.by support and/or disable the Microsoft account requirement. This fork goes beyond simply adding a login-password prompt and authlib-injector download.
+## Features
 
-- Modern and secure login: PineconeMC uses OAuth2 to log you in. This means that your credentials are never transferred to the launcher. Instead, you log into your account on the official Ely.by page in the browser, and Ely.by gives the launcher a token to access your account with limited privileges.
-- Skins support on servers: All other forks rely exclusively on authlib-injector to patch Minecraft to support Ely.by. But authlib-injector can't provide skins on servers that don't have a special skins plugin installed. PineconeMC uses Ely.by's official Authlib patches, allowing you to see skins anywhere
+- **Offline mode:** Automatic, Always offline or Always online. Offline, the launcher never tries to download anything and only uses what was imported.
+- **Offline bundles:**
+  - Export a set of Minecraft versions with loaders, or a whole instance (including Modrinth and CurseForge modpacks, and optionally worlds).
+  - Imports are checked and atomic: a damaged or incomplete bundle changes nothing.
+- **LAN with offline accounts:** two or more offline players can play together over LAN with no internet, using a small local sign-in agent and the bundled [authlib-injector](https://github.com/yushijinhun/authlib-injector).
+- **Ready to run offline:** the release zip includes Eclipse Temurin Java 25, 21, 17 and 8, all launcher translations, and the Visual C++ runtime.
+- **Easy to use:**
+  - a first-run welcome wizard;
+  - plain-language error messages with a "what to do";
+  - a complete offline guide (`Guide.html`, also opened with F1);
+  - text size and high-contrast options, keyboard and screen-reader support.
 
-## Installation
+## Using it
 
-- All downloads and instructions for PineconeMC can be found on the [Releases](https://github.com/ElyPrismLauncher/Launcher/releases/latest) page.
-- Last build status can be found in the [GitHub Actions](https://github.com/ElyPrismLauncher/Launcher/actions) tab.
+Download the release zip, unzip it anywhere (not under `C:\Program Files`) and run `pineconemc-offline.exe`. `README-FIRST.txt` and `Guide.html` in the folder explain the rest.
 
-### Development Builds
+You need to own Minecraft: Java Edition.
 
-Please understand that these builds are not intended for most users. There may be bugs, and other instabilities. You have been warned.
+## Building (Windows x64)
 
-There are development builds available through:
+Requirements: Visual Studio 2026 Build Tools (C++ workload), Git, Python 3 on `PATH`, and PowerShell 5.1.
 
-- [GitHub Actions](https://github.com/ElyPrismLauncher/Launcher/actions) (includes builds from pull requests opened by contributors)
-- [nightly.link](https://nightly.link/ElyPrismLauncher/Launcher/workflows/build/develop) (this will always point only to the latest version of develop)
+```powershell
+git clone --recurse-submodules <this repository>
+cd <repository folder>
+powershell -ExecutionPolicy Bypass -File scripts\offline\setup-toolchain.ps1   # Qt 6.10.2, vcpkg and a JDK into .deps\
+powershell -ExecutionPolicy Bypass -File scripts\offline\build.ps1 -Package    # builds and installs a portable copy into dist\
+powershell -ExecutionPolicy Bypass -File scripts\offline\test.ps1              # unit tests
+```
 
-These have debug information in the binaries, so their file sizes are relatively larger.
+The first build compiles the vcpkg dependencies and takes a while.
 
-## Community & Support
+### Making a release
 
-Feel free to create a GitHub issue if you find a bug or want to suggest a new feature. We have a Discord server where other community members can help you:
+```powershell
+powershell -ExecutionPolicy Bypass -File scripts\offline\fetch-runtimes.ps1   # Temurin JREs and translations (checksummed, cached)
+powershell -ExecutionPolicy Bypass -File scripts\offline\make-release.ps1     # dist\release\*.zip
+```
 
-[![Octol1ttle's Studio Discord server](https://discordapp.com/api/guilds/1201522867901313045/widget.png?style=banner3)](https://discord.gg/5kcBCvnbTp)
+`make-release.ps1` builds the zip from a fresh install, so it never contains user data. `check-release.ps1` verifies it.
 
-## Building
+## License and credits
 
-If you want to build PineconeMC yourself, check the [build instructions](https://prismlauncher.org/wiki/development/build-instructions).
+PineconeMC Offline is free software under the **GNU General Public License v3.0** (see `LICENSE` and `COPYING.md`). It is a fork of:
 
-## The following comes from the original Prism Launcher README
+- [PineconeMC / ElyPrismLauncher](https://github.com/ElyPrismLauncher/Launcher), a fork of [Prism Launcher](https://github.com/PrismLauncher/PrismLauncher) (and before it PolyMC and MultiMC), whose authors keep their copyrights;
+- [authlib-injector](https://github.com/yushijinhun/authlib-injector) by yushijinhun (AGPL-3.0 with the authlib-injector exception), shipped unmodified;
+- [Eclipse Temurin](https://adoptium.net/) Java runtimes (GPL-2.0 with the Classpath Exception), shipped in the release zip.
 
-### Forking/Redistributing/Custom builds policy
-
-You are free to fork, redistribute and provide custom builds as long as you follow the terms of the [license](LICENSE) (this is a legal responsibility), and if you made code changes rather than just packaging a custom build, please do the following as a basic courtesy:
-
-- Make it clear that your fork is not Prism Launcher and is not endorsed by or affiliated with the Prism Launcher project (<https://prismlauncher.org>).
-- Go through [CMakeLists.txt](CMakeLists.txt) and change Prism Launcher's API keys to your own or set them to empty strings (`""`) to disable them (this way the program will still compile but the functionality requiring those keys will be disabled).
-
-If you have any questions or want any clarification on the above conditions please make an issue and ask us.
-
-If you are just building Prism Launcher for your distribution, please make sure to set the `Launcher_BUILD_PLATFORM` to a slug representing your distribution. Examples are `archlinux`, `fedora` and `nixpkgs`.
-
-Note that if you build this software without removing the provided API keys in [CMakeLists.txt](CMakeLists.txt) you are accepting the following terms and conditions:
-
-- [Microsoft Identity Platform Terms of Use](https://docs.microsoft.com/en-us/legal/microsoft-identity-platform/terms-of-use)
-- [CurseForge 3rd Party API Terms and Conditions](https://support.curseforge.com/en/support/solutions/articles/9000207405-curse-forge-3rd-party-api-terms-and-conditions)
-
-If you do not agree with these terms and conditions, then remove the associated API keys from the [CMakeLists.txt](CMakeLists.txt) file by setting them to an empty string (`""`).
-
-### License [![https://github.com/PrismLauncher/PrismLauncher/blob/develop/LICENSE](https://img.shields.io/github/license/PrismLauncher/PrismLauncher?label=License&logo=gnu&color=C4282D)](LICENSE)
-
-All launcher code is available under the GPL-3.0-only license.
-
-The logo and related assets are under the CC BY-SA 4.0 license.
+Minecraft is a trademark of Mojang Synergies AB. This launcher is not an official Minecraft product and is not approved by or associated with Mojang or Microsoft.
