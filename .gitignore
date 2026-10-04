@@ -1,69 +1,48 @@
+# Operating system
 Thumbs.db
-*.kdev4
-.user
+Desktop.ini
+.DS_Store
 .directory
-resources/CMakeFiles
+
+# Editors and IDEs
 *~
 *.swp
-html/
-
-# Project Files
+*.kdev4
+.user
 *.pro.user
 CMakeLists.txt.user
 CMakeLists.txt.user.*
 CMakeSettings.json
-/CMakeFiles
-CMakeCache.txt
 CMakeUserPresets.json
 /.project
 /.settings
 /.idea
 /.vscode
 /.vs
-cmake-build-*/
-Debug
-compile_commands.json
+/tags
+.ycm_extra_conf.*
+.cache/
 
-# Build dirs
+# Build output
 build
 /build-*
-
-# Install dirs
+cmake-build-*/
+/CMakeFiles
+resources/CMakeFiles
+CMakeCache.txt
+compile_commands.json
+Debug
+html/
 install
 /install-*
 
-# Ctags File
-tags
-
-# YouCompleteMe config stuff.
-.ycm_extra_conf.*
-
-#OSX Stuff
-.DS_Store
-
-branding/
-secrets/
-run/
-
-.cache/
-
-# Nix/NixOS
-.direnv/
-## Used when manually invoking stdenv phases
-outputs/
-## Regular artifacts
-result
-result-*
-repl-result-*
-
-# Flatpak
-.flatpak-builder
-flatbuild
-
-# Snap
-*.snap
-
-# PineconeMC Offline local toolchain / outputs
+# Local toolchain (setup-toolchain.ps1, fetch-runtimes.ps1), portable copies and release zips (build.ps1, make-release.ps1)
 /.deps/
 /dist/
 /aqtinstall.log
+
+# Never commit
+branding/
+secrets/
+run/
+/*.log
