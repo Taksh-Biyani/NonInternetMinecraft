@@ -420,13 +420,20 @@ summary { cursor: pointer; font-weight: 600; }
 <p>On some school or guest Wi-Fi networks, computers can't see each other at all; a simple router or switch fixes that.</p></details>
 <details><summary>"Invalid session" or "Failed to verify username" when joining</summary>
 <p>The host is using a Microsoft account while you use an offline name. The host should switch to an offline name (see <a href="#lan">Which accounts can play together</a>).</p></details>
+<details><summary>I can't join someone else's LAN world, even though everything above is right</summary>
+<p>This can also be caused by a bug in Minecraft itself. The free <strong>OfflineLAN</strong> mod works around it. Only the <strong>host</strong> needs it, and the host's instance must use <strong>Fabric</strong>.</p>
+<ol>
+  <li>On a computer with internet, open the host's instance → <span class="ui">Edit</span> → <span class="ui">Mods</span> → <span class="ui">Download mods</span>, search for <strong>OfflineLAN</strong> and add it.</li>
+  <li>Export that instance as an offline bundle and import it on the host computer (see <a href="#bundle-modpacks">Bundling modpacks</a>).</li>
+  <li>On the host, start the world and press <kbd>Esc</kbd> → <span class="ui">Open to LAN</span>. Switch <span class="ui">Online Mode</span> to <span class="ui">OFF</span>, then click <span class="ui">Start LAN World</span>. Note the port number the game shows.</li>
+  <li>The others open <span class="ui">Multiplayer</span> → <span class="ui">Direct Connection</span> and type the host's address and that port in the form <code>&lt;ip-address&gt;:&lt;port&gt;</code>, for example <code>192.168.1.20:51234</code>. To find the address, see <a href="#lan">Playing together on LAN</a>.</li>
+</ol>
+<p>When everyone is on the same network, nothing needs to be set up on the router.</p></details>
 <details><summary>The Modrinth or CurseForge page says "You're offline"</summary>
 <p>That's expected without internet: modpacks can't be browsed. Bring them over as bundles (see <a href="#bundle-modpacks">Bundling modpacks</a>).</p>
 <p>If this computer has internet now, click <span class="ui">Refresh</span> on that note.</p></details>
 <details><summary>"Nothing is installed for this yet" in a version list</summary>
 <p>No bundle with that Minecraft version or loader has been imported on this computer. Make and import one (see <a href="#make-bundle">Making a bundle</a>).</p></details>
-<details><summary>"The guide (Guide.html) belongs in the launcher's folder…"</summary>
-<p>The guide file was lost when copying the launcher. Copy the whole launcher folder again from the USB stick or zip. Your games are kept if you copy <em>into</em> the existing folder.</p></details>
 
 <!-- ============================================================ -->
 <h2 id="missing-files">15. When a game says files are missing</h2>
