@@ -16,21 +16,31 @@
  *  along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-#include "GuideButton.h"
+#pragma once
 
-#include "ui/dialogs/GuideWindow.h"
+#include <QDialog>
 
-GuideButton::GuideButton(OfflineGuide::Section section, QWidget* parent) : QToolButton(parent)
-{
-    setText(QStringLiteral("?"));
-    setToolTip(tr("Help: %1").arg(OfflineGuide::title(section)));
-    setAccessibleName(tr("Help"));
-    setAccessibleDescription(tr("Opens the guide at \"%1\"").arg(OfflineGuide::title(section)));
-    connect(this, &QToolButton::clicked, this, [this, section] { openSection(section, this); });
-}
+#include "offline/GuideLinks.h"
 
-void GuideButton::openSection(OfflineGuide::Section section, [[maybe_unused]] QWidget* parent)
-{
-    // The guide is built into the launcher and opens in its own window.
-    GuideWindow::showSection(section);
-}
+class QLineEdit;
+class QTextBrowser;
+
+// The offline guide (Guide.html, built into the launcher) in a window of its own, styled like the rest of the launcher.
+class GuideWindow : public QDialog {
+    Q_OBJECT
+   public:
+    // Opens the guide at `section`, reusing the window if it's already open.
+    static void showSection(OfflineGuide::Section section);
+
+   protected:
+    void changeEvent(QEvent* event) override;
+
+   private:
+    explicit GuideWindow(QWidget* parent);
+    void loadGuide();
+    void goTo(OfflineGuide::Section section);
+    void find(bool backwards);
+
+    QTextBrowser* m_browser = nullptr;
+    QLineEdit* m_find = nullptr;
+};

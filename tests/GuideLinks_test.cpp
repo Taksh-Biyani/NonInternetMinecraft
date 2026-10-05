@@ -20,6 +20,8 @@
 #include <QRegularExpression>
 #include <QSet>
 #include <QTest>
+#include <QTextBlock>
+#include <QTextDocument>
 
 #include <offline/GuideLinks.h>
 
@@ -44,7 +46,7 @@ class GuideLinksTest : public QObject {
         QVERIFY(!sectionFromAnchor("nope"));
     }
 
-    // Plan 6 replaces Guide.html with the real guide; this keeps every "?" button pointing at an existing section.
+    // Keeps every "?" button pointing at an existing section when Guide.html is edited.
     void guideHasEveryAnchor()
     {
         QFile guide(QStringLiteral(PINECONE_GUIDE_HTML));
@@ -54,22 +56,46 @@ class GuideLinksTest : public QObject {
             QVERIFY2(html.contains(QString("id=\"%1\"").arg(anchor(section))), qPrintable(anchor(section)));
     }
 
-    void sectionUrlKeepsTheAnchor()
+    // The in-app guide window renders the guide with Qt's rich text: every "?" button must still find its section there.
+    void inAppGuideKeepsEveryAnchor()
     {
-        const QUrl url = sectionUrl("C:/Games/PineconeMC Offline/Guide.html", Section::Lan);
-        QCOMPARE(url.toLocalFile(), QString("C:/Games/PineconeMC Offline/Guide.html"));
-        QCOMPARE(url.fragment(), QString("lan"));
+        QFile guide(QStringLiteral(PINECONE_GUIDE_HTML));
+        QVERIFY(guide.open(QIODevice::ReadOnly));
+        const QString html = forTextBrowser(QString::fromUtf8(guide.readAll()));
+        QVERIFY(!html.contains("<style"));
+        QVERIFY(!html.contains("<details"));
+        QVERIFY(!html.contains("<summary"));
+
+        QTextDocument doc;
+        doc.setHtml(html);
+        QSet<QString> names;
+        for (QTextBlock block = doc.begin(); block.isValid(); block = block.next())
+            for (auto it = block.begin(); !it.atEnd(); ++it)
+                for (const QString& name : it.fragment().charFormat().anchorNames())
+                    names.insert(name);
+        for (auto section : allSections())
+            QVERIFY2(names.contains(anchor(section)), qPrintable(anchor(section)));
     }
 
-    void redirectPageForwardsWithTheAnchor()
+    void questionsBecomeHeadings()
     {
-        const QString page = redirectPage(sectionUrl("C:/Games/PineconeMC Offline/Guide.html", Section::Lan));
-        QVERIFY(page.contains("http-equiv=\"refresh\""));
-        QVERIFY(page.contains("url=file:///C:/Games/PineconeMC%20Offline/Guide.html#lan"));
-        QVERIFY(page.contains("href=\"file:///C:/Games/PineconeMC%20Offline/Guide.html#lan\""));
+        const QString html = forTextBrowser("<details><summary>\"Damaged…\"</summary>\n<p>Copy it again.</p></details>");
+        QCOMPARE(html, QString("<h4>\"Damaged…\"</h4>\n<p>Copy it again.</p>"));
+    }
+
+    void bundleDiagramBecomesOneRow()
+    {
+        const QString html = forTextBrowser(
+            "<div class=\"flow\" role=\"img\">\n  <div class=\"step\">A</div>\n  <div class=\"arrow\" aria-hidden=\"true\">&rarr;</div>\n"
+            "  <div class=\"step\">B</div>\n</div>\n<p>after</p>");
+        QVERIFY2(html.contains("<table class=\"flow\""), qPrintable(html));
+        QVERIFY(html.contains("<td class=\"step\">A</td>"));
+        QVERIFY(html.contains("<td class=\"arrow\">&rarr;</td>"));
+        QVERIFY(html.contains("</tr></table>\n<p>after</p>"));
+        QVERIFY(!html.contains("<div"));
     }
 };
 
-QTEST_GUILESS_MAIN(GuideLinksTest)
+QTEST_MAIN(GuideLinksTest)
 
 #include "GuideLinks_test.moc"

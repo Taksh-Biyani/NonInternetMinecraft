@@ -20,7 +20,6 @@
 
 #include <QList>
 #include <QString>
-#include <QUrl>
 #include <optional>
 
 // The sections of the bundled guide (Guide.html next to the exe). Every "?" button and "Open guide" link names one of
@@ -50,10 +49,6 @@ QString anchor(Section section);  // e.g. "import-bundle"
 QString title(Section section);   // e.g. "Importing a bundle"
 std::optional<Section> sectionFromAnchor(const QString& anchorText);
 
-// file:///…/Guide.html#anchor
-QUrl sectionUrl(const QString& guideFile, Section section);
-
-// A tiny page that forwards to `target`. Windows drops the #anchor when it opens a file:// URL directly, so the
-// launcher opens this page instead and the browser follows the redirect with the anchor intact.
-QString redirectPage(const QUrl& target);
+// Guide.html adapted for Qt's rich text (QTextBrowser), which the in-app guide window uses.
+QString forTextBrowser(QString html);
 }  // namespace OfflineGuide

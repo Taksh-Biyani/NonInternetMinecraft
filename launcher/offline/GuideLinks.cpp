@@ -19,6 +19,7 @@
 #include "GuideLinks.h"
 
 #include <QCoreApplication>
+#include <QRegularExpression>
 
 namespace OfflineGuide {
 
@@ -90,21 +91,27 @@ std::optional<Section> sectionFromAnchor(const QString& anchorText)
     return std::nullopt;
 }
 
-QUrl sectionUrl(const QString& guideFile, Section section)
+QString forTextBrowser(QString html)
 {
-    QUrl url = QUrl::fromLocalFile(guideFile);
-    url.setFragment(anchor(section));
-    return url;
-}
+    static const QRegularExpression style("<style>.*?</style>\\s*", QRegularExpression::DotMatchesEverythingOption);
+    static const QRegularExpression summary("<summary>(.*?)</summary>", QRegularExpression::DotMatchesEverythingOption);
+    static const QRegularExpression details("</?details[^>]*>");
+    static const QRegularExpression flow("<div class=\"flow\"[^>]*>(.*?)\\n</div>", QRegularExpression::DotMatchesEverythingOption);
+    static const QRegularExpression cell("<div class=\"(step|arrow)\"[^>]*>");
 
-QString redirectPage(const QUrl& target)
-{
-    const QString href = target.toString(QUrl::FullyEncoded).toHtmlEscaped();
-    // One multi-argument arg() call: the encoded URL contains "%20", which a second arg() call would treat as a placeholder.
-    return QString(
-               "<!doctype html>\n<html><head><meta charset=\"utf-8\"><meta http-equiv=\"refresh\" content=\"0; url=%1\">"
-               "<title>%2</title></head><body><p><a href=\"%1\">%2</a></p></body></html>\n")
-        .arg(href, tr("Open the guide").toHtmlEscaped());
+    // Qt's rich text has no CSS variables, flexbox or media queries: the guide window styles the page itself.
+    html.remove(style);
+    // No <details> either: show each troubleshooting question as a heading, with its answer below.
+    html.replace(summary, "<h4>\\1</h4>");
+    html.remove(details);
+    // The bundle diagram is a flexbox row of boxes; a one-row table looks the same.
+    for (auto match = flow.match(html); match.hasMatch(); match = flow.match(html)) {
+        QString row = match.captured(1);
+        row.replace(cell, "<td class=\"\\1\">");
+        row.replace("</div>", "</td>");
+        html.replace(match.capturedStart(), match.capturedLength(), "<table class=\"flow\" align=\"center\"><tr>" + row + "</tr></table>");
+    }
+    return html;
 }
 
 }  // namespace OfflineGuide

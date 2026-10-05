@@ -7,8 +7,9 @@ To start:   double-click  pineconemc-offline.exe
             (If Windows says "Windows protected your PC", click
              "More info", then "Run anyway".)
 
-The guide:  open  Guide.html  in this folder (any web browser, no
-            internet needed). In the launcher, press F1.
+The guide:  in the launcher, press F1 (or click any "?" button).
+            It's also in this folder as Guide.html, for any web
+            browser (no internet needed).
 
 How games get onto this computer:
   1. On a computer WITH internet, run this same launcher and click
