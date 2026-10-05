@@ -30,7 +30,7 @@ if (Test-Path $denyFile) {
         } else { throw "release-deny.txt: can't read '$line'" }
     }
 } else {
-    Write-Warning "No $denyFile: only the built-in checks run."
+    Write-Warning "No ${denyFile}: only the built-in checks run."
 }
 $devName = '^(' + ($devNames -join '|') + ')$'
 $devTextPlain = $devTextAll + $devTextPlain
