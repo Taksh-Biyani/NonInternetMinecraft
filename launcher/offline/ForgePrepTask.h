@@ -35,6 +35,10 @@ class ForgePrepTask : public Task {
     ForgePrepTask(QString javaExe, QString prepJar, QString forgeWrapperJar, QString installerJar, QString librariesDir, QString minecraftJar);
 
     QStringList createdFiles() const { return m_created; }
+    // The files the installer steps write, as named in the installer's install_profile.json "data" section, that exist
+    // under librariesDir (plus their ".cache" files). They are already there when the instance was played before the
+    // export, so comparing the folder before and after the steps misses them.
+    static QStringList processorOutputs(const QString& installerJar, const QString& librariesDir);
     QString output() const { return m_output; }
     bool abort() override;
 
