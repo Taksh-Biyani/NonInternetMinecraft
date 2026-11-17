@@ -583,6 +583,16 @@ QStringList MinecraftInstance::javaArguments()
 
     args << "-Duser.language=en";
 
+#ifdef Q_OS_WIN32
+    // Make Java also trust the certificates Windows trusts. Office and school networks that inspect HTTPS re-sign
+    // sites with their own root certificate, which IT installs into Windows but the bundled Java doesn't know;
+    // without this, Forge's install steps (run before the game window opens) fail with
+    // "SunCertPathBuilderException".
+    const QString systemTrustJar = APPLICATION->getJarPath("pinecone-system-trust.jar");
+    if (!systemTrustJar.isEmpty())
+        args << "-javaagent:" + systemTrustJar;
+#endif
+
     // custom args go first. we want to override them if we have our own here.
     args.append(extraArguments());
 

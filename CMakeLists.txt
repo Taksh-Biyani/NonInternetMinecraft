@@ -185,7 +185,7 @@ set(Launcher_LEGACY_FMLLIBS_BASE_URL "https://files.pineconemc.ru/fmllibs/" CACH
 ######## Set version numbers ########
 set(Launcher_VERSION_MAJOR 12)
 set(Launcher_VERSION_MINOR 0)
-set(Launcher_VERSION_PATCH 0)
+set(Launcher_VERSION_PATCH 1)
 
 set(Launcher_VERSION_NAME "${Launcher_VERSION_MAJOR}.${Launcher_VERSION_MINOR}.${Launcher_VERSION_PATCH}")
 set(Launcher_VERSION_NAME4 "${Launcher_VERSION_MAJOR}.${Launcher_VERSION_MINOR}.${Launcher_VERSION_PATCH}.0")
@@ -499,6 +499,7 @@ add_subdirectory(libraries/libnbtplusplus)
 add_subdirectory(libraries/launcher) # java based launcher part for Minecraft
 add_subdirectory(libraries/javacheck) # java compatibility checker
 add_subdirectory(libraries/offline-auth) # PineconeMC Offline: local sign-in server agent + authlib-injector (LAN without internet)
+add_subdirectory(libraries/system-trust) # PineconeMC Offline: game's Java also trusts Windows' certificates (HTTPS-inspecting networks)
 add_subdirectory(libraries/forge-prep) # PineconeMC Offline: runs Forge/NeoForge installer processors when exporting a bundle
 
 add_subdirectory(libraries/rainbow) # Qt extension for colors

@@ -80,7 +80,7 @@ function Test-Layout([string[]]$Relative) {
     if (@($Relative -match '^translations[\\/]mmc_.+\.qm$').Count -lt 50) { $problems.Add('translations missing') }
     if (-not ($Relative -match '^translations[\\/]index_v2\.json$')) { $problems.Add('translations index missing') }
     foreach ($need in 'pineconemc-offline.exe', 'portable.txt', 'Guide.html', 'README-FIRST.txt', 'vcruntime140.dll', 'msvcp140.dll',
-                      'jars\authlib-injector.jar', 'jars\pinecone-offline-auth.jar', 'licenses\PineconeMC-Offline-LICENSE.txt') {
+                      'jars\authlib-injector.jar', 'jars\pinecone-offline-auth.jar', 'jars\pinecone-system-trust.jar', 'licenses\PineconeMC-Offline-LICENSE.txt') {
         if (-not ($Relative -contains $need -or $Relative -contains $need.Replace('\', '/'))) { $problems.Add("missing: $need") }
     }
 }
